@@ -74,7 +74,7 @@ DATABASE_NAME = env.str('DATABASE_NAME')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / f'{DATABASE_NAME}.sqlite3',
+        'NAME': f'{DATABASE_NAME}.sqlite3',
     }
 }
 
