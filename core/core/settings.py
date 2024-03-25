@@ -1,20 +1,26 @@
 from pathlib import Path
 
+from environs import Env
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = Env()
+env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ld846zz&-p_as@zkx9b05odkx0(kas*)zli-xjt1jy3u^k*3!z'
+SECRET_KEY = env('SECRET_KEY_DJANGO')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+# Уникальный секретный ключ для телеграм бота
+SECRET_KEY_TELEGRAM_BOT = env.str('SECRET_KEY_TELEGRAM_BOT')
 
 # Application definition
 
@@ -64,10 +70,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DATABASE_NAME = env.str('DATABASE_NAME')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / f'{DATABASE_NAME}.sqlite3',
     }
 }
 
@@ -96,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-Ru'
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = env.str('TIME_ZONE')
 
 USE_I18N = True
 
