@@ -12,7 +12,7 @@ env.read_env()
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY_DJANGO')
+SECRET_KEY = env.str('SECRET_KEY_DJANGO')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG')
@@ -20,7 +20,7 @@ DEBUG = env.bool('DEBUG')
 ALLOWED_HOSTS = ['*']
 
 # Уникальный секретный ключ для телеграм бота
-SECRET_KEY_TELEGRAM_BOT = env.str('SECRET_KEY_TELEGRAM_BOT')
+TOKEN_TELEGRAM_BOT = env.str('TOKEN_TELEGRAM_BOT')
 
 # Application definition
 
