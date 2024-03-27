@@ -2,18 +2,9 @@ from django.db import models
 
 
 class Student(models.Model):
-    "Ученики"
-    telegram_id = models.PositiveBigIntegerField(
-        verbose_name = 'Телеграм ID', 
-        blank = True, 
-        null = True, 
-        unique = True, 
-        db_index = True, 
-        help_text = 'Указывается телеграм ID после аутентификации'
-    )
-    
+    "Ученики"    
     login = models.CharField(
-        verbose_name = 'Логин в базе данных',
+        verbose_name = 'Логин',
         max_length = 30,
         unique = True,
         blank = False,
@@ -21,7 +12,7 @@ class Student(models.Model):
     )
     
     password = models.CharField(
-        verbose_name = 'Пароль в базе данных',
+        verbose_name = 'Пароль',
         max_length = 30,
         blank = False,
         help_text = 'Укажите пароль для ученика'
@@ -41,6 +32,15 @@ class Student(models.Model):
         default = False,
         help_text = 'Укажите достиг ли ученик 14-го возраста'
         
+    )
+
+    telegram_id = models.PositiveBigIntegerField(
+        verbose_name = 'Телеграм ID', 
+        blank = True, 
+        null = True, 
+        unique = True, 
+        db_index = True, 
+        help_text = 'Указывается телеграм ID после аутентификации'
     )
     
     class Meta:
