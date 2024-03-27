@@ -43,6 +43,30 @@ class Student(models.Model):
         return self.full_name
 
 
+class StudentGroup(models.Model):
+    """Группа учеников"""
+    name = models.CharField(
+        verbose_name = 'Название группы',
+        max_length = 50,
+        blank = False,
+        unique = True,
+        db_index = True,
+        help_text = 'Создайте группу'
+    )
+    
+    students = models.ManyToManyField(
+        to = Student,
+        verbose_name = 'В каких группах состоит ученик',
+    )
+    
+    class Meta:
+        verbose_name = "Группа"
+        verbose_name_plural = "Группы"
+
+    def __str__(self):
+        return self.name
+
+
 class StudentContentDetails(models.Model):
     """Персональные данные ученика"""
     parent_full_name = models.CharField(
@@ -197,3 +221,21 @@ class Teacher(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+
+class Subject(models.Model):
+    name = models.CharField(
+        verbose_name = 'Название дисциплины',
+        max_length = 50,
+        blank = False,
+        unique = True,
+        db_index = True,
+        help_text = 'Укажите название дисцпиплины'
+    )
+    
+    class Meta:
+        verbose_name = "Дисциплина"
+        verbose_name_plural = "Дисциплины"
+
+    def __str__(self):
+        return self.name

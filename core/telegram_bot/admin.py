@@ -8,13 +8,22 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ('id', 
                     'full_name', 
                     'login', 
-                    'password', 
+                    'password',
                     'telegram_id'
     )
-    
     list_display_links = ['full_name']
+
+
+@admin.register(models.StudentGroup)
+class StudentGroupAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'name'
+    )
     
-    
+    filter_horizontal = ['students']
+    list_display_links = ['name']
+
+
 @admin.register(models.StudentContentDetails)
 class StudentContentDetailsAdmin(admin.ModelAdmin):
     '''Регистрация модуля для персональных данных ученика'''
@@ -51,3 +60,13 @@ class TeacherAdmin(admin.ModelAdmin):
     )
     
     list_display_links = ['full_name']
+
+
+@admin.register(models.Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    '''Регистрация модуля для дисциплин'''
+    list_display = ('id', 
+                    'name'
+    )
+    
+    list_display_links = ['name']
