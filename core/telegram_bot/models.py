@@ -43,7 +43,8 @@ class Student(models.Model):
         return self.full_name
 
 
-class StudentContentDetails(models.Model):    
+class StudentContentDetails(models.Model):
+    """Персональные данные ученика"""
     parent_full_name = models.CharField(
         verbose_name = 'ФИО Родителя',
         max_length = 50,
@@ -154,3 +155,45 @@ class StudentContentDetails(models.Model):
     
     def __str__(self) -> str:
         return self.student.full_name
+
+
+class Teacher(models.Model):
+    """Преподаватели"""
+    login = models.CharField(
+        verbose_name = 'Логин',
+        max_length = 30,
+        unique = True,
+        blank = False,
+        help_text = 'Укажите логин для преподавателя'
+    )
+    
+    password = models.CharField(
+        verbose_name = 'Пароль',
+        max_length = 30,
+        blank = False,
+        help_text = 'Укажите пароль для преподавателя'
+    )
+    
+    full_name = models.CharField(
+        verbose_name = 'ФИО',
+        max_length = 50,
+        unique = False,
+        blank = False,
+        help_text = 'Укажите ФИО преподавателя'
+    )
+    
+    telegram_id = models.PositiveBigIntegerField(
+        verbose_name = 'Телеграм ID', 
+        blank = True, 
+        null = True, 
+        unique = True, 
+        db_index = True, 
+        help_text = 'Указывается телеграм ID после аутентификации'
+    )
+
+    class Meta:
+        verbose_name = "Преподаватель"
+        verbose_name_plural = "Преподаватели"
+
+    def __str__(self):
+        return self.full_name

@@ -38,3 +38,16 @@ class StudentContentDetailsAdmin(admin.ModelAdmin):
     )
     
     list_display_links = ['student']
+
+
+@admin.register(models.Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    '''Регистрация модуля для преподавателей'''
+    list_display = ('id', 
+                    'full_name', 
+                    'login', 
+                    'password', 
+                    'telegram_id'
+    )
+    
+    list_display_links = ['full_name']
