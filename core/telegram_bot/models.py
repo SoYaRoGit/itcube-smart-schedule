@@ -35,6 +35,13 @@ class Student(models.Model):
         help_text = 'Указывается телеграм ID после аутентификации'
     )
     
+    is_authentication = models.BooleanField(
+        verbose_name = 'Аутентификация',
+        blank = True,
+        default = False,
+        help_text = 'Состояние аутентификации'
+    )
+    
     class Meta:
         verbose_name = "Ученик"
         verbose_name_plural = "Ученики"
@@ -223,6 +230,13 @@ class Teacher(models.Model):
         unique = True, 
         db_index = True, 
         help_text = 'Указывается телеграм ID после аутентификации'
+    )
+
+    is_authentication = models.BooleanField(
+        verbose_name = 'Аутентификация',
+        blank = True,
+        default = False,
+        help_text = 'Состояние аутентификации'
     )
 
     class Meta:
