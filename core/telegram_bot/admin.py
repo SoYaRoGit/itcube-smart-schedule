@@ -70,3 +70,9 @@ class SubjectAdmin(admin.ModelAdmin):
     )
     
     list_display_links = ['name']
+
+
+@admin.register(models.Classroom)
+class ClassroomAdmin(admin.ModelAdmin):
+    '''Регистрация модуля для учебных кабинетов'''
+    list_display = ('id', 'name')

@@ -239,3 +239,19 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Classroom(models.Model):
+    name = models.CharField(
+        verbose_name = 'Название кабинета',
+        max_length = 50,
+        blank = False,
+        help_text = 'Укажите название кабинета'
+    )
+
+    class Meta:
+        verbose_name = "Кабинет"
+        verbose_name_plural = "Кабинеты"
+
+    def __str__(self):
+        return self.name
