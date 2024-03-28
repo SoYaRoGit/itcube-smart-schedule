@@ -9,6 +9,10 @@ authrouter = Router()
 # Обработчик заглушка для проверки работы бота
 @authrouter.message(CommandStart)
 async def cmd_start(message: Message):
-    await message.reply(
-        text=message.text
+    # Удалить сообщение /start
+    await message.delete
+    
+    await message.answer(
+        text = 'Авторизация',
+        reply_markup = ...
     )
