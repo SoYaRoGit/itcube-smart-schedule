@@ -1,7 +1,7 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import Message
-from aiogram.filters import CommandStart, CommandObject, Command
-
+from aiogram.filters import CommandStart, Command
+from telegram_bot.lexicon.authentication import AUTHENTICATION_TEXT
 
 authrouter = Router()
 
