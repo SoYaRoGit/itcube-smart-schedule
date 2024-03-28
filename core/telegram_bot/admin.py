@@ -17,7 +17,8 @@ class StudentAdmin(admin.ModelAdmin):
 @admin.register(models.StudentGroup)
 class StudentGroupAdmin(admin.ModelAdmin):
     list_display = ('id',
-                    'name'
+                    'name',
+                    'teacher'
     )
     
     filter_horizontal = ['students']
@@ -66,7 +67,7 @@ class TeacherAdmin(admin.ModelAdmin):
 class SubjectAdmin(admin.ModelAdmin):
     '''Регистрация модуля для дисциплин'''
     list_display = ('id', 
-                    'name'
+                    'name',
     )
     
     list_display_links = ['name']

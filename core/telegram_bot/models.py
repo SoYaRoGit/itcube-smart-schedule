@@ -54,10 +54,20 @@ class StudentGroup(models.Model):
         help_text = 'Создайте группу'
     )
     
+    teacher = models.ForeignKey(
+        to = 'Teacher',
+        on_delete = models.CASCADE,
+        verbose_name = 'Преподаватель',
+        blank = False,
+        null = True,
+        help_text = 'Укажите преподавателя, который преподает дисциплину'
+    )
+    
     students = models.ManyToManyField(
         to = Student,
         verbose_name = 'В каких группах состоит ученик',
     )
+    
     
     class Meta:
         verbose_name = "Группа"
@@ -232,7 +242,8 @@ class Subject(models.Model):
         db_index = True,
         help_text = 'Укажите название дисцпиплины'
     )
-    
+
+
     class Meta:
         verbose_name = "Дисциплина"
         verbose_name_plural = "Дисциплины"
