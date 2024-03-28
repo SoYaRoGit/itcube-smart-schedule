@@ -266,3 +266,54 @@ class Classroom(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Schedule(models.Model):    
+    date = models.DateField(
+        verbose_name = 'Дата занятия',
+        blank = False,
+        help_text = 'Укажите дату занятия'
+    )
+    
+    start_time = models.TimeField(
+        verbose_name = 'Время начала занятия',
+        blank = False,
+        help_text = 'Укажите время начала занятия'
+    )
+    
+    end_time = models.TimeField(
+        verbose_name = 'Время окончания занятия',
+        blank = False,
+        help_text = 'Укажите время окончания занятия'
+    )
+    
+    subject = models.ForeignKey(
+        to = Subject,
+        on_delete = models.CASCADE,
+        verbose_name = 'Дисциплина',
+        blank = False,
+        help_text = 'Укажите дисциплину'
+    )
+    
+    classroom = models.ForeignKey(
+        to = Classroom,
+        on_delete = models.CASCADE,
+        verbose_name = 'Кабинет',
+        blank = False,
+        help_text = 'Укажите кабинет'
+    )
+    
+    group = models.ForeignKey(
+        to = StudentGroup,
+        on_delete = models.CASCADE,
+        verbose_name = 'Группа',
+        blank = False,
+        help_text = 'Укажите группу'
+    )
+
+    class Meta:
+        verbose_name = "Занятие"
+        verbose_name_plural = "Занятия"
+
+    def __str__(self):
+        return f'{self.subject.name} {self.classroom.name} {self.start_time} - {self.end_time}'

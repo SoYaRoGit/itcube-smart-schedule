@@ -76,4 +76,19 @@ class SubjectAdmin(admin.ModelAdmin):
 @admin.register(models.Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
     '''Регистрация модуля для учебных кабинетов'''
-    list_display = ('id', 'name')
+    list_display = ('id', 
+                    'name'
+    )
+
+
+@admin.register(models.Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    '''Регистрация модуля для занятий'''
+    list_display = ('id',
+                    'date',
+                    'start_time',
+                    'end_time',
+                    'subject',
+                    'classroom',
+                    'group'
+    )
