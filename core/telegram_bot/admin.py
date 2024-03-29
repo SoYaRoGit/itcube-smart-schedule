@@ -12,7 +12,7 @@ class StudentAdmin(admin.ModelAdmin):
                     'telegram_id',
                     'is_authentication'
     )
-    readonly_fields = ('is_authentication',)
+    readonly_fields = ('telegram_id', 'is_authentication')
     list_display_links = ['full_name']
 
 
@@ -62,7 +62,7 @@ class TeacherAdmin(admin.ModelAdmin):
                     'telegram_id',
                     'is_authentication'
     )
-    readonly_fields = ('is_authentication',)
+    readonly_fields = ('telegram_id', 'is_authentication')
     list_display_links = ['full_name']
 
 
