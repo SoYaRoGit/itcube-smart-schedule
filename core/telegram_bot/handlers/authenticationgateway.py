@@ -10,9 +10,8 @@ authrouter = Router()
 @authrouter.message(CommandStart)
 async def cmd_start(message: Message):
     # Удалить сообщение /start
-    await message.delete
+    await message.delete()
     
     await message.answer(
-        text = 'Авторизация',
-        reply_markup = ...
+        text = AUTHENTICATION_TEXT['cmd_start_not_authentication'].format(message.from_user.full_name),
     )
