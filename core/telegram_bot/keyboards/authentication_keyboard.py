@@ -33,7 +33,7 @@ inline_keyboard_authentication_cancel = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(
                 text = 'Отмена',
-                callback_data = 'authentication_user_cancel'
+                callback_data = 'authentication_user_state_cancel'
             )
         ]
     ]

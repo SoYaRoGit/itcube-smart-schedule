@@ -3,8 +3,11 @@ from telegram_bot.handlers.authenticationgateway import authentication_router
 from django.conf import settings
 
 
+
+bot = Bot(settings.TOKEN_TELEGRAM_BOT, parse_mode='HTML')
+
 async def main() -> None:
-    bot = Bot(settings.TOKEN_TELEGRAM_BOT, parse_mode='HTML')
+    
     dp = Dispatcher()
     
     dp.include_router(authentication_router)
