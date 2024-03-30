@@ -17,11 +17,23 @@ inline_keyboard_authentication_user_menu = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(
                 text='Назад',
-                callback_data='authentication_user_cancel'
+                callback_data='authentication_user_backward'
             ),
             InlineKeyboardButton(
                 text='Продолжить',
-                callback_data='authentication_user_continue'
+                callback_data='authentication_user_state_login'
+            )
+        ]
+    ]
+)
+
+
+inline_keyboard_authentication_cancel = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text = 'Отмена',
+                callback_data = 'authentication_user_cancel'
             )
         ]
     ]

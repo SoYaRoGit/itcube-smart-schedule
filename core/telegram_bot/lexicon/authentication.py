@@ -19,7 +19,7 @@ AUTHENTICATION_TEXT: dict = {
 Вернуться к стартовому сообщению -> "Назад".
 Начало авторизации -> "Продолжить".
 """,
-    'authentication_user_continue':
+    'authentication_user_state_login':
 """
 Укажите выданный вам логин!
 Для отмены регистрации нажмите -> "Отмена".
