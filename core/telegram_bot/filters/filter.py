@@ -6,6 +6,24 @@ from asgiref.sync import sync_to_async
 
 
 
+def send_full_name(telegram_id: int) -> str:
+    # Проверяем, существует ли студент с указанным telegram_id
+    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
+        
+    # Если студент существует, проверяем его аутентификацию
+    if student_exists:
+        student = Student.objects.get(telegram_id=telegram_id)
+        if student.is_authentication:
+            return str(student.full_name)  # Если аутентифицирован, возвращаем ФИО
+        
+    # Если студент не найден или не аутентифицирован, проверяем преподавателя
+    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
+    if teacher_exists:
+        teacher = Teacher.objects.get(telegram_id=telegram_id)
+        if teacher.is_authentication:
+            return str(teacher.full_name)  # Если аутентифицирован, возвращаем True
+
+
 def not_authentication(telegram_id: int) -> bool:
     # Проверяем, существует ли студент с указанным telegram_id
     student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
