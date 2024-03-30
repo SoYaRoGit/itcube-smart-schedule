@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart, Command
 from telegram_bot.filters.filter import NotAuthenticationFilter
 from telegram_bot.keyboards.authentication_keyboard import (
     inline_keyboard_authentication,
-    inline_keyboard_authentication_user_menu
+    inline_keyboard_authentication_menu
 )
 from telegram_bot.lexicon.authentication import AUTHENTICATION_TEXT
 from telegram_bot.states.authentication_state import authentication_state_router
@@ -23,23 +23,23 @@ async def cmd_start(message: Message):
     # Отправка стартового сообщения для не авторизированных пользователей
     await message.answer(
         text = AUTHENTICATION_TEXT['cmd_start_not_authentication'].format(message.from_user.full_name),
-        # Вызывает кнопку с авторизацией callback_data = authentication_user
+        # Вызывает кнопку с авторизацией callback_data = authentication
         reply_markup = inline_keyboard_authentication 
     )
 
 
-@authentication_router.callback_query(F.data.in_('authentication_user'))
-async def authentication_user_menu(callback: CallbackQuery):
+@authentication_router.callback_query(F.data.in_('authentication'))
+async def authentication_menu(callback: CallbackQuery):
     await callback.message.edit_text(
-        text = AUTHENTICATION_TEXT['authentication_user_menu'],
-        reply_markup = inline_keyboard_authentication_user_menu
+        text = AUTHENTICATION_TEXT['authentication_menu'],
+        reply_markup = inline_keyboard_authentication_menu
     )
     
     await callback.answer()
 
 
-@authentication_router.callback_query(F.data.in_('authentication_user_backward'))
-async def authentication_user_backward(callback: CallbackQuery):
+@authentication_router.callback_query(F.data.in_('authentication_backward'))
+async def authentication_backward(callback: CallbackQuery):
     await callback.message.edit_text(
         text = AUTHENTICATION_TEXT['cmd_start_not_authentication'],
         reply_markup = inline_keyboard_authentication
