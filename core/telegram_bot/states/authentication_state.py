@@ -7,8 +7,10 @@ from aiogram.fsm.state import default_state, StatesGroup, State
 from telegram_bot.bot import bot
 from telegram_bot.lexicon.authentication import AUTHENTICATION_TEXT
 from telegram_bot.keyboards.authentication_keyboard import (
+    inline_keyboard_authentication,
+    inline_keyboard_authentication_check,
     inline_keyboard_authentication_cancel,
-    inline_keyboard_authentication
+    
 )
 
 
@@ -98,12 +100,19 @@ async def state_input_password(message: Message, state: FSMContext):
     
     data = await state.get_data()
     
-    authentication_data = AUTHENTICATION_TEXT['authentication_data']
+    authentication_data = AUTHENTICATION_TEXT['authentication_data'].format(
+        data['login'],
+        data['password']
+    )
     
     await send_update_message(
         chat_id = data['chat_id'],
         message_id = data['message_id'],
-        text = AUTHENTICATION_TEXT['authentication_state_password']
+        text = authentication_data,
+        keyboard = inline_keyboard_authentication_check
     )
 
 
+@authentication_state_router.callback_query(F.data.in_('authentication_check'), )
+async def state_authentication_check(callback: CallbackQuery, state: FSMContext):
+    ...

@@ -38,3 +38,27 @@ inline_keyboard_authentication_cancel = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+inline_keyboard_authentication_check = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text='Отмена',
+                callback_data='authentication_state_cancel'
+            ),
+            InlineKeyboardButton(
+                text='Ввести заново',
+                callback_data='authentication_state_login'
+            )
+
+        ],
+        [
+            InlineKeyboardButton(
+                text='Авторизация',
+                callback_data='authentication_check'
+            )
+        ]
+        
+    ]
+)
