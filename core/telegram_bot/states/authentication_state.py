@@ -5,6 +5,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, StatesGroup, State
 from telegram_bot.loader import bot
+from telegram_bot.filters.filter import AuthenticationUpdateFilter
 from telegram_bot.lexicon.authentication import AUTHENTICATION_TEXT
 from telegram_bot.keyboards.authentication_keyboard import (
     inline_keyboard_authentication,
@@ -113,6 +114,19 @@ async def state_input_password(message: Message, state: FSMContext):
     )
 
 
-@authentication_state_router.callback_query(F.data.in_('authentication_check'), )
+@authentication_state_router.callback_query(F.data.in_('authentication_check'), AuthenticationUpdateFilter())
 async def state_authentication_check(callback: CallbackQuery, state: FSMContext):
-    ...
+    data = await state.get_data()
+    
+    response_text = AUTHENTICATION_TEXT['authentication_check'].format(
+        data['login'],
+        data['password']
+    )
+    
+    await callback.answer(
+        text = response_text,
+        show_alert = True
+    )
+    
+    await state.clear()
+    await callback.message.delete()
