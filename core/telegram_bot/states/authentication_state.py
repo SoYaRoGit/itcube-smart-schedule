@@ -4,7 +4,7 @@ from aiogram.methods import EditMessageText
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, StatesGroup, State
-from telegram_bot.bot import bot
+from telegram_bot.loader import bot
 from telegram_bot.lexicon.authentication import AUTHENTICATION_TEXT
 from telegram_bot.keyboards.authentication_keyboard import (
     inline_keyboard_authentication,
@@ -49,7 +49,7 @@ class FSMAuthenticationForm(StatesGroup):
 @authentication_state_router.callback_query(F.data.in_('authentication_state_cancel'), ~StateFilter(default_state))
 async def authentication_state_cancel(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
-        text = AUTHENTICATION_TEXT['cmd_start_not_authentication'],
+        text = AUTHENTICATION_TEXT['cmd_start_not_authentication'].format(callback.from_user.full_name),
         reply_markup = inline_keyboard_authentication
     )
     

@@ -41,6 +41,6 @@ async def authentication_menu(callback: CallbackQuery):
 @authentication_router.callback_query(F.data.in_('authentication_backward'))
 async def authentication_backward(callback: CallbackQuery):
     await callback.message.edit_text(
-        text = AUTHENTICATION_TEXT['cmd_start_not_authentication'],
+        text = AUTHENTICATION_TEXT['cmd_start_not_authentication'].format(callback.from_user.full_name),
         reply_markup = inline_keyboard_authentication
     )

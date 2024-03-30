@@ -1,14 +1,12 @@
-from aiogram import Dispatcher, Bot
+from telegram_bot import loader
 from telegram_bot.handlers.authenticationgateway import authentication_router
-from django.conf import settings
 
 
-
-bot = Bot(settings.TOKEN_TELEGRAM_BOT, parse_mode='HTML')
 
 async def main() -> None:
     
-    dp = Dispatcher()
+    bot = loader.bot
+    dp = loader.dp
     
     dp.include_router(authentication_router)
     
