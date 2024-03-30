@@ -1,11 +1,12 @@
 from aiogram.filters import BaseFilter
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
+from aiogram.fsm.context import FSMContext
 from telegram_bot.models import Student, Teacher
 from asgiref.sync import sync_to_async
 
 
 
-def is_authenticated(telegram_id: int) -> bool:
+def not_authentication(telegram_id: int) -> bool:
     # Проверяем, существует ли студент с указанным telegram_id
     student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
         
@@ -28,4 +29,49 @@ def is_authenticated(telegram_id: int) -> bool:
 class NotAuthenticationFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         telegram_id = message.from_user.id
-        return await sync_to_async(is_authenticated)(telegram_id)
+        return await sync_to_async(not_authentication)(telegram_id)
+
+
+def authentication_update(telegram_id: int, state_data) -> bool:
+    # Проверяем, существует ли студент с указанным логином, паролем
+    student_exists = Student.objects.filter(
+        login = state_data['login'],
+        password = state_data['password']
+    ).exists()
+    
+    # Если студент c такими данными существует, то проводим аутентификацию
+    if student_exists:
+        Student.objects.filter(
+            login = state_data['login'],
+            password = state_data['password']
+        ).update(
+            telegram_id = telegram_id,
+            is_authentication = True
+        )
+        
+        return True
+    
+    # Проверяем, существует ли преподаватель с указанным логином, паролем
+    teacher_exists = Teacher.objects.filter(
+        login = state_data['login'],
+        password = state_data['password']
+    ).exists()
+    
+    # Если преподаватель c такими данными существует, то проводим аутентификацию
+    if teacher_exists:
+        Teacher.objects.filter(
+            login = state_data['login'],
+            password = state_data['password']
+        ).update(
+            telegram_id = telegram_id,
+            is_authentication = True
+        )
+    
+    # В случае, если не найдены данные, то возвращаем False
+    return False
+
+class AuthenticationUpdateFilter(BaseFilter):
+    async def __call__(self, callback: CallbackQuery, state: FSMContext):
+        telegram_id = callback.from_user.id
+        state_data = await state.get_data()
+        return await sync_to_async(authentication_update)(telegram_id, state_data)
