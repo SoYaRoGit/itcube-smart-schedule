@@ -95,3 +95,24 @@ class AuthenticationUpdateFilter(BaseFilter):
         telegram_id = callback.from_user.id
         state_data = await state.get_data()
         return await sync_to_async(authentication_update)(telegram_id, state_data)
+    
+
+
+
+def authentication_student(telegram_id: int) -> bool:
+    # Проверяем, существует ли студент с указанным telegram_id
+    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
+        
+    # Если студент существует, проверяем его аутентификацию
+    if student_exists:
+        student = Student.objects.get(telegram_id=telegram_id)
+        if student.is_authentication:
+            return True  # Если аутентифицирован, возвращаем False
+    
+    return False
+
+
+class AuthenticationStudentFilter(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        telegram_id: int = message.from_user.id
+        return await sync_to_async(authentication_student)(telegram_id) 
