@@ -1,7 +1,7 @@
 from aiogram import Router, F, html
 from aiogram.types import Message, CallbackQuery
 from telegram_bot.filters.filter import AuthenticationStudentFilter
-from telegram_bot.eduutils.student_db import get_student_send_personal_data
+from telegram_bot.eduutils.student_db import get_student_send_personal_data, get_student_send_schedule
 from telegram_bot.keyboards.student_keyboard import inline_kyboard_panel
 from asgiref.sync import sync_to_async
 
@@ -33,12 +33,22 @@ async def student_send_personal_data(callback: CallbackQuery):
         
     await callback.message.edit_text(
         f'📹 Ваши персональные данные\n'
-        f'🔒 Уникальный ID: {html.quote(str(personal_data["id"]))}\n'
-        f'🔒 Логин: {html.quote(str(personal_data["login"]))}\n'
-        f'🔒 Пароль: {html.quote(str(personal_data["password"]))}\n'
-        f'🔒 ФИО: {html.quote(str(personal_data["full_name"]))}\n'
-        f'🔒 Телеграм ID: {html.quote(str(personal_data["telegram_id"]))}\n'
-        f'🔒 Статус аутентификации: {html.quote(str(personal_data["is_authentication"]))}\n'
+        f'Уникальный ID: {html.quote(str(personal_data["id"]))}\n'
+        f'Логин: {html.quote(str(personal_data["login"]))}\n'
+        f'Пароль: {html.quote(str(personal_data["password"]))}\n'
+        f'ФИО: {html.quote(str(personal_data["full_name"]))}\n'
+        f'Телеграм ID: {html.quote(str(personal_data["telegram_id"]))}\n'
+        f'Статус аутентификации: {html.quote(str(personal_data["is_authentication"]))}\n'
         )
+    
+    await callback.answer()
+
+
+@student_handler.callback_query(F.data.in_('student_send_schedule'))
+async def student_send_schedule(callback: CallbackQuery):
+    scheduele = await sync_to_async(get_student_send_schedule)(callback.from_user.id)
+    await callback.message.answer(
+        text="\n".join(str(item) for item in scheduele)
+    )
     
     await callback.answer()
