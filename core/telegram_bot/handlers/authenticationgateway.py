@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
 from telegram_bot.filters.filter import NotAuthenticationFilter
 from telegram_bot.keyboards.authentication_keyboard import (
     inline_keyboard_authentication,
