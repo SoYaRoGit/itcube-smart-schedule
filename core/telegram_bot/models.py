@@ -330,4 +330,4 @@ class Schedule(models.Model):
         verbose_name_plural = "Занятия"
 
     def __str__(self):
-        return f'{self.subject.name} {self.classroom.name} {self.start_time} - {self.end_time}'
+        return f'{self.subject.name} {self.classroom.name} {self.date} {self.start_time} - {self.end_time}'
