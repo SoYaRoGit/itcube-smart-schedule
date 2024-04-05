@@ -1,6 +1,6 @@
+from datetime import datetime
+from django.db.models import Q
 from telegram_bot.models import Student, Schedule
-from django.db.models import Prefetch
-from asgiref.sync import sync_to_async
 
 
 
@@ -28,7 +28,14 @@ def get_student_send_personal_data(telegram_id):
 
 def get_student_send_schedule(telegram_id: int):
     student = Student.objects.get(telegram_id=telegram_id)
-    schedules = Schedule.objects.filter(group__students=student).all()
+    now = datetime.now()  # Получаем текущую дату и время
+    
+    # Фильтруем расписание по студенту и дате занятия, а также времени начала занятия
+    schedules = Schedule.objects.filter(
+        Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+        group__students=student,
+        date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
+    ).order_by('date', 'start_time').all()
     
     schedule_strings = [str(schedule) for schedule in schedules]
     
