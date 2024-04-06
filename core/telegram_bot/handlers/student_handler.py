@@ -1,9 +1,10 @@
-from aiogram import Router, F, html
+from aiogram import Router, F, html, Bot
 from aiogram.types import Message, CallbackQuery
 from telegram_bot.filters.filter import AuthenticationStudentFilter
-from telegram_bot.eduutils.student_db import get_student_send_personal_data, get_student_send_schedule
+from telegram_bot.eduutils.edu_utils_db import get_student_send_personal_data, get_student_send_schedule
 from telegram_bot.keyboards.student_keyboard import inline_kyboard_panel
 from asgiref.sync import sync_to_async
+from telegram_bot.loader import scheduler, bot
 
 # Инициализация роутера
 student_handler = Router()
@@ -52,3 +53,9 @@ async def student_send_schedule(callback: CallbackQuery):
     )
     
     await callback.answer()
+    
+
+@student_handler.message()
+async def test_scheduler(bot: Bot):
+    ...
+scheduler.add_job(test_scheduler, "interval", minute=1, kwargs={'bot': bot})
