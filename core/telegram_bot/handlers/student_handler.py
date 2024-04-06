@@ -63,5 +63,12 @@ async def student_send_schedule(callback: CallbackQuery):
 async def test_scheduler(bot: Bot):
     reminder = await sync_to_async(send_schedule_reminder)()
     
+    for telegram_id, schedulers in reminder.items():
+        if schedulers:
+            for scheduler in schedulers:
+                await bot.send_message(
+                    chat_id=telegram_id,
+                    text=scheduler
+                )
     print(reminder)
 scheduler.add_job(test_scheduler, "interval", seconds=60, kwargs={'bot': bot})
