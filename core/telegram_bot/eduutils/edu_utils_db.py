@@ -65,7 +65,7 @@ def send_schedule_reminder():
             # Проверяем, находится ли текущее время за 30 минут до начала занятия
             if notification_time >= start_datetime >= now:
                 # Если условие выполняется, добавляем информацию о занятии в список для оповещения
-                schedule_strings.append(f"{schedule.subject} в {schedule.start_time}")
+                schedule_strings.append(f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
         
         students_schedule[student.telegram_id] = schedule_strings
     
