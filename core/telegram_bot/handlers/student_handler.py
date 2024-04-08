@@ -4,7 +4,7 @@ from telegram_bot.filters.filter import AuthenticationStudentFilter
 from telegram_bot.eduutils.edu_utils_db import (
     get_student_send_personal_data, 
     get_student_send_schedule,
-    send_schedule_reminder
+    student_send_schedule_reminder
 )
 from telegram_bot.keyboards.student_keyboard import inline_keyboard_panel, inline_keyboard_backward
 from asgiref.sync import sync_to_async
@@ -67,7 +67,7 @@ async def student_send_schedule(callback: CallbackQuery):
 
 @student_handler.message()
 async def test_scheduler(bot: Bot):
-    reminder = await sync_to_async(send_schedule_reminder)()
+    reminder = await sync_to_async(student_send_schedule_reminder)()
     
     for telegram_id, schedulers in reminder.items():
         if schedulers:

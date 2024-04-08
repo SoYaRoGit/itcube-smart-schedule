@@ -59,7 +59,7 @@ def get_teacher_send_schedule(telegram_id: int):
     return schedule_strings
 
 
-def send_schedule_reminder():
+def student_send_schedule_reminder():
     now = datetime.now()  # Получаем текущую дату и время
     notification_time = now + timedelta(minutes=1) # Время оповещения 
     
