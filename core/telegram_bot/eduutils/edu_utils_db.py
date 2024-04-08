@@ -141,6 +141,18 @@ def get_teacher_send_personal_data(telegram_id):
     
     
 
+def get_students_group(name_group: str) -> list:
+    try:
+        students_telegram_id = []
+        students = Student.objects.filter(studentgroup__name = name_group)
+        
+        for student in students:
+            students_telegram_id.append(student.telegram_id)
+        
+        return students_telegram_id
+    except Student.DoesNotExist:
+        return None
+
 def get_groups_teacher(telegram_id_teacher: int) -> list[tuple]:
     groups = StudentGroup.objects.filter(teacher__telegram_id=telegram_id_teacher)
     teacher_groups = [(group.name, str(group)) for group in groups]
