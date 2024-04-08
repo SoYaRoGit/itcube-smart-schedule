@@ -5,7 +5,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, StatesGroup, State
 from telegram_bot.loader import bot
-from telegram_bot.filters.filter import AuthenticationUpdateFilter, send_full_name
+from telegram_bot.filters.filter import AuthenticationUpdateFilter, send_full_name, NotAuthenticationFilter
 from telegram_bot.lexicon.authentication import AUTHENTICATION_TEXT
 from telegram_bot.keyboards.authentication_keyboard import (
     inline_keyboard_authentication,
@@ -150,3 +150,9 @@ async def state_authentication_check(callback: CallbackQuery, state: FSMContext)
     
     await state.clear()
     await callback.message.delete()
+    
+    
+@authentication_state_router.message(NotAuthenticationFilter())
+async def not_authentication_user(message: Message):
+    await message.delete()
+    await message.answer(text='Вы не прошли аутентификацию, пожалуйста пройдите /start')
