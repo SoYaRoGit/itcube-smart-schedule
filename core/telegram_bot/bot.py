@@ -12,6 +12,8 @@ async def main() -> None:
     dp = loader.dp
     scheduler = loader.scheduler
     
+    
+    dp.include_router()
     dp.include_router(student_handler)
     dp.include_router(authentication_router)
     scheduler.start()
