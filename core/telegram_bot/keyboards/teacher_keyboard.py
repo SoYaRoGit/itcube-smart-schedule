@@ -1,5 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from telegram_bot.eduutils.edu_utils_db import get_groups_teacher
+from asgiref.sync import sync_to_async
 
 
 inline_keyboard_panel = InlineKeyboardMarkup(
@@ -41,3 +43,17 @@ inline_keyboard_backward = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+
+async def builder_inline_keyboard_group(telegram_id_teacher: int) -> InlineKeyboardBuilder:
+    inline_keyboard_groups = InlineKeyboardBuilder()
+    button_group: list[InlineKeyboardButton] = await sync_to_async(get_groups_teacher)(telegram_id_teacher)
+    
+    for button_text, callback_data in button_group:
+        inline_keyboard_groups.add(InlineKeyboardButton(
+            text = button_text,
+            callback_data = callback_data
+        ))
+    
+    return inline_keyboard_groups.as_markup()

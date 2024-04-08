@@ -1,7 +1,7 @@
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import Q
-from telegram_bot.models import Student, Schedule, Teacher
+from telegram_bot.models import Student, Schedule, Teacher, StudentGroup
 from datetime import timedelta
 
 
@@ -73,7 +73,6 @@ def student_send_schedule_reminder():
             group__students=student,
             date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
         ).order_by('date', 'start_time').all()
-        
         schedule_strings = []
         
         for schedule in schedules:
@@ -139,3 +138,10 @@ def get_teacher_send_personal_data(telegram_id):
     except Student.DoesNotExist:
         # Обработка случая, когда студент с указанным telegram_id не найден
         return None
+    
+    
+
+def get_groups_teacher(telegram_id_teacher: int) -> list[tuple]:
+    groups = StudentGroup.objects.filter(teacher__telegram_id=telegram_id_teacher)
+    teacher_groups = [(group.name, str(group)) for group in groups]
+    return teacher_groups

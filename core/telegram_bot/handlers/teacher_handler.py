@@ -1,7 +1,7 @@
 from aiogram import Bot, Router, F, html
 from aiogram.types import Message, CallbackQuery
 from telegram_bot.filters.filter import AuthenticationTeacherFilter
-from telegram_bot.keyboards.teacher_keyboard import inline_keyboard_panel, inline_keyboard_backward
+from telegram_bot.keyboards.teacher_keyboard import inline_keyboard_panel, inline_keyboard_backward, builder_inline_keyboard_group
 from telegram_bot.eduutils.edu_utils_db import get_teacher_send_personal_data, get_teacher_send_schedule, teacher_send_schedule_reminder
 from telegram_bot.loader import scheduler, bot
 from asgiref.sync import sync_to_async
@@ -78,8 +78,10 @@ scheduler.add_job(notifying_teachers, "interval", seconds=60, kwargs={'bot': bot
 
 @teacher_handler.callback_query(F.data.in_('teacher_send_message_for_group'))
 async def student_inline_keyboard_backward(callback: CallbackQuery):
+    keyboard = await builder_inline_keyboard_group(callback.from_user.id)
     await callback.message.edit_text(
-        text = ...
+        text = 'Выберите группу для отправки сообщения',
+        reply_markup = keyboard
     )
     await callback.answer()
 
