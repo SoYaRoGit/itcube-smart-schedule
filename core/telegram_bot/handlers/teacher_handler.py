@@ -1,8 +1,9 @@
-from aiogram import Router, F, html
+from aiogram import Bot, Router, F, html
 from aiogram.types import Message, CallbackQuery
 from telegram_bot.filters.filter import AuthenticationTeacherFilter
 from telegram_bot.keyboards.teacher_keyboard import inline_keyboard_panel, inline_keyboard_backward
-from telegram_bot.eduutils.edu_utils_db import get_teacher_send_personal_data, get_teacher_send_schedule
+from telegram_bot.eduutils.edu_utils_db import get_teacher_send_personal_data, get_teacher_send_schedule, teacher_send_schedule_reminder
+from telegram_bot.loader import scheduler, bot
 from asgiref.sync import sync_to_async
 
 
@@ -56,6 +57,21 @@ async def student_send_schedule(callback: CallbackQuery):
         )
     
     await callback.answer()
+    
+
+@teacher_handler.message()
+async def notifying_teachers(bot: Bot):
+    reminder = await sync_to_async(teacher_send_schedule_reminder)()
+    
+    for telegram_id, schedulers in reminder.items():
+        if schedulers:
+            for scheduler in schedulers:
+                await bot.send_message(
+                    chat_id=telegram_id,
+                    text=scheduler
+                )
+    print(reminder)
+scheduler.add_job(notifying_teachers, "interval", seconds=60, kwargs={'bot': bot})
 
 
 

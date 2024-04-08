@@ -88,6 +88,35 @@ def student_send_schedule_reminder():
     return students_schedule
 
 
+def teacher_send_schedule_reminder():
+    now = datetime.now()  # Получаем текущую дату и время
+    notification_time = now + timedelta(minutes=1) # Время оповещения 
+    
+    teachers = Teacher.objects.all()
+    
+    teachers_schedule = {}
+    
+    for teacher in teachers:
+        schedules = Schedule.objects.filter(
+            Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+            group__teacher=teacher,
+            date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
+        ).order_by('date', 'start_time').all()
+        
+        schedule_strings = []
+        
+        for schedule in schedules:
+            start_datetime = timezone.datetime.combine(schedule.date, schedule.start_time)
+            # Проверяем, находится ли текущее время за 30 минут до начала занятия
+            if notification_time >= start_datetime >= now:
+                # Если условие выполняется, добавляем информацию о занятии в список для оповещения
+                schedule_strings.append(f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
+
+        teachers_schedule[teacher.telegram_id] = schedule_strings
+    
+    return teachers_schedule
+
+
 def __teacher_to_dict(teacher):
     return {
         'id': teacher.id,
