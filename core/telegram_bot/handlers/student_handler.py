@@ -66,7 +66,7 @@ async def student_send_schedule(callback: CallbackQuery):
     
 
 @student_handler.message()
-async def test_scheduler(bot: Bot):
+async def notifying_student(bot: Bot):
     reminder = await sync_to_async(student_send_schedule_reminder)()
     
     for telegram_id, schedulers in reminder.items():
@@ -77,7 +77,7 @@ async def test_scheduler(bot: Bot):
                     text=scheduler
                 )
     print(reminder)
-scheduler.add_job(test_scheduler, "interval", seconds=60, kwargs={'bot': bot})
+scheduler.add_job(notifying_student, "interval", seconds=60, kwargs={'bot': bot})
 
 
 @student_handler.callback_query(F.data.in_('student_inline_keyboard_backward'))
