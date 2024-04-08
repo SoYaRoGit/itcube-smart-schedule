@@ -2,6 +2,7 @@ from aiogram.filters import BaseFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from telegram_bot.models import Student, Teacher
+from telegram_bot.eduutils.edu_utils_db import get_groups_teacher
 from asgiref.sync import sync_to_async
 
 
@@ -135,4 +136,15 @@ def authentication_teacher(telegram_id: int) -> bool:
 class AuthenticationTeacherFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         telegram_id: int = message.from_user.id
-        return await sync_to_async(authentication_teacher)(telegram_id) 
+        return await sync_to_async(authentication_teacher)(telegram_id)
+    
+    
+class CallbackTeacherGroupsFilter(BaseFilter):
+    async def __call__(self, callback: CallbackQuery) -> bool | dict[str, str]:
+        teacher_groups: list[tuple[str]] = await sync_to_async(get_groups_teacher)(callback.from_user.id)
+        
+        for group_tuple in teacher_groups:
+            if callback.data in group_tuple:
+                return {'group': group_tuple[0]}  # Возвращаем первый элемент кортежа
+        
+        return False
