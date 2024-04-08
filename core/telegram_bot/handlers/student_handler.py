@@ -53,9 +53,14 @@ async def student_send_personal_data(callback: CallbackQuery):
 @student_handler.callback_query(F.data.in_('student_send_schedule'))
 async def student_send_schedule(callback: CallbackQuery):
     scheduele = await sync_to_async(get_student_send_schedule)(callback.from_user.id)
-    await callback.message.answer(
-        text="\n".join(str(item) for item in scheduele)
-    )
+    if scheduele:
+        await callback.message.answer(
+            text="\n".join(str(item) for item in scheduele)
+        )
+    else:
+        await callback.message.answer(
+            text='В данный момент нет запланированных занятий'
+        )
     
     await callback.answer()
     
