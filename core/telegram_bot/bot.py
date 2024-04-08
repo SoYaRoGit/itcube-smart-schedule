@@ -2,6 +2,7 @@ from telegram_bot import loader
 from telegram_bot.utils.logger import logger
 from telegram_bot.handlers.authenticationgateway import authentication_router
 from telegram_bot.handlers.student_handler import student_handler
+from telegram_bot.handlers.teacher_handler import teacher_handler
 
 
 async def main() -> None:
@@ -13,7 +14,7 @@ async def main() -> None:
     scheduler = loader.scheduler
     
     
-    dp.include_router()
+    dp.include_router(teacher_handler)
     dp.include_router(student_handler)
     dp.include_router(authentication_router)
     scheduler.start()

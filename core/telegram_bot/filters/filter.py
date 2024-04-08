@@ -115,4 +115,24 @@ def authentication_student(telegram_id: int) -> bool:
 class AuthenticationStudentFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         telegram_id: int = message.from_user.id
-        return await sync_to_async(authentication_student)(telegram_id) 
+        return await sync_to_async(authentication_student)(telegram_id)
+    
+    
+
+
+def authentication_teacher(telegram_id: int) -> bool:
+    # Проверяем, существует ли студент с указанным telegram_id
+    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
+        
+    # Если студент существует, проверяем его аутентификацию
+    if teacher_exists:
+        teacher = Teacher.objects.get(telegram_id=telegram_id)
+        if teacher.is_authentication:
+            return True  # Если аутентифицирован, возвращаем False
+    
+    return False
+
+class AuthenticationTeacherFilter(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        telegram_id: int = message.from_user.id
+        return await sync_to_async(authentication_teacher)(telegram_id) 
