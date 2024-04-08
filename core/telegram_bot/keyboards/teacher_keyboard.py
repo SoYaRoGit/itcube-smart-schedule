@@ -23,3 +23,14 @@ inline_keyboard_panel = InlineKeyboardMarkup(
         ]
     ]
 )
+
+inline_keyboard_backward = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text='Назад',
+                callback_data='teacher_inline_keyboard_backward'
+            )
+        ]
+    ]
+)

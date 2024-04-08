@@ -1,7 +1,7 @@
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import Q
-from telegram_bot.models import Student, Schedule
+from telegram_bot.models import Student, Schedule, Teacher
 from datetime import timedelta
 
 
@@ -70,3 +70,25 @@ def send_schedule_reminder():
         students_schedule[student.telegram_id] = schedule_strings
     
     return students_schedule
+
+
+def __teacher_to_dict(teacher):
+    return {
+        'id': teacher.id,
+        'login': teacher.login,
+        'password': teacher.password,
+        'full_name': teacher.full_name,
+        'telegram_id': teacher.telegram_id,
+        'is_authentication': teacher.is_authentication,
+    }
+
+def get_teacher_send_personal_data(telegram_id):
+    try:
+        # Получить ученика по его Telegram ID
+        teacher = Teacher.objects.get(telegram_id=telegram_id)
+        # Преобразовать объект студента в словарь
+        teacher_data = __teacher_to_dict(teacher)
+        return teacher_data
+    except Student.DoesNotExist:
+        # Обработка случая, когда студент с указанным telegram_id не найден
+        return None
