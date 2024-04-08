@@ -2,7 +2,7 @@ from aiogram import Router, F, html
 from aiogram.types import Message, CallbackQuery
 from telegram_bot.filters.filter import AuthenticationTeacherFilter
 from telegram_bot.keyboards.teacher_keyboard import inline_keyboard_panel, inline_keyboard_backward
-from telegram_bot.eduutils.edu_utils_db import get_teacher_send_personal_data
+from telegram_bot.eduutils.edu_utils_db import get_teacher_send_personal_data, get_teacher_send_schedule
 from asgiref.sync import sync_to_async
 
 
@@ -41,6 +41,22 @@ async def teacher_send_personal_data(callback: CallbackQuery):
         )
     
     await callback.answer()
+
+
+@teacher_handler.callback_query(F.data.in_('teacher_send_schedule'))
+async def student_send_schedule(callback: CallbackQuery):
+    scheduele = await sync_to_async(get_teacher_send_schedule)(callback.from_user.id)
+    if scheduele:
+        await callback.message.answer(
+            text="\n".join(str(item) for item in scheduele)
+        )
+    else:
+        await callback.message.answer(
+            text='В данный момент нет запланированных занятий'
+        )
+    
+    await callback.answer()
+
 
 
 @teacher_handler.callback_query(F.data.in_('teacher_inline_keyboard_backward'))

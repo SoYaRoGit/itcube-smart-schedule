@@ -43,6 +43,22 @@ def get_student_send_schedule(telegram_id: int):
     return schedule_strings
 
 
+def get_teacher_send_schedule(telegram_id: int):
+    teacher = Teacher.objects.get(telegram_id=telegram_id)
+    now = datetime.now()  # Получаем текущую дату и время
+    
+    # Фильтруем расписание по студенту и дате занятия, а также времени начала занятия
+    schedules = Schedule.objects.filter(
+        Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+        group__teacher=teacher,
+        date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
+    ).order_by('date', 'start_time').all()
+    
+    schedule_strings = [str(schedule) for schedule in schedules]
+    
+    return schedule_strings
+
+
 def send_schedule_reminder():
     now = datetime.now()  # Получаем текущую дату и время
     notification_time = now + timedelta(minutes=1) # Время оповещения 
