@@ -75,6 +75,15 @@ scheduler.add_job(notifying_teachers, "interval", seconds=60, kwargs={'bot': bot
 
 
 
+
+@teacher_handler.callback_query(F.data.in_('teacher_send_message_for_group'))
+async def student_inline_keyboard_backward(callback: CallbackQuery):
+    await callback.message.edit_text(
+        text = ...
+    )
+    await callback.answer()
+
+
 @teacher_handler.callback_query(F.data.in_('teacher_inline_keyboard_backward'))
 async def student_inline_keyboard_backward(callback: CallbackQuery):
     await callback.message.edit_text(
