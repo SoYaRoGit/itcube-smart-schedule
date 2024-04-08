@@ -132,3 +132,21 @@ async def state_authentication_check(callback: CallbackQuery, state: FSMContext)
     
     await state.clear()
     await callback.message.delete()
+
+@authentication_state_router.callback_query(F.data.in_('authentication_check'), ~AuthenticationUpdateFilter())
+async def state_authentication_check(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    
+    response_text = AUTHENTICATION_TEXT['not_authentication_check'].format(
+        await sync_to_async(send_full_name)(callback.from_user.id),
+        data['login'],
+        data['password']
+    )
+    
+    await callback.answer(
+        text = response_text,
+        show_alert = True
+    )
+    
+    await state.clear()
+    await callback.message.delete()
