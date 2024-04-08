@@ -6,7 +6,7 @@ from telegram_bot.eduutils.edu_utils_db import (
     get_student_send_schedule,
     send_schedule_reminder
 )
-from telegram_bot.keyboards.student_keyboard import inline_kyboard_panel
+from telegram_bot.keyboards.student_keyboard import inline_keyboard_panel, inline_keyboard_backward
 from asgiref.sync import sync_to_async
 from telegram_bot.loader import scheduler, bot
 
@@ -23,7 +23,7 @@ async def cmd_panel_student(message: Message):
     await message.delete()
     await message.answer(
         text = 'Панель обучающегося',
-        reply_markup = inline_kyboard_panel
+        reply_markup = inline_keyboard_panel
     )
     
 
@@ -43,7 +43,8 @@ async def student_send_personal_data(callback: CallbackQuery):
         f'Пароль: {html.quote(str(personal_data["password"]))}\n'
         f'ФИО: {html.quote(str(personal_data["full_name"]))}\n'
         f'Телеграм ID: {html.quote(str(personal_data["telegram_id"]))}\n'
-        f'Статус аутентификации: {html.quote(str(personal_data["is_authentication"]))}\n'
+        f'Статус аутентификации: {html.quote(str(personal_data["is_authentication"]))}\n',
+        reply_markup = inline_keyboard_backward
         )
     
     await callback.answer()
@@ -72,3 +73,12 @@ async def test_scheduler(bot: Bot):
                 )
     print(reminder)
 scheduler.add_job(test_scheduler, "interval", seconds=60, kwargs={'bot': bot})
+
+
+@student_handler.callback_query(F.data.in_('student_inline_keyboard_backward'))
+async def student_inline_keyboard_backward(callback: CallbackQuery):
+    await callback.message.edit_text(
+        text='Панель обучающегося',
+        reply_markup= inline_keyboard_panel
+    )
+    await callback.answer()

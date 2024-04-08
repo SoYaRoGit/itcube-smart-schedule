@@ -44,3 +44,4 @@ async def authentication_backward(callback: CallbackQuery):
         text = AUTHENTICATION_TEXT['cmd_start_not_authentication'].format(callback.from_user.full_name),
         reply_markup = inline_keyboard_authentication
     )
+    await callback.answer()
