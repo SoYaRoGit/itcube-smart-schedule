@@ -87,3 +87,9 @@ async def student_inline_keyboard_backward(callback: CallbackQuery):
         reply_markup= inline_keyboard_panel
     )
     await callback.answer()
+    
+    
+@student_handler.callback_query(F.data.in_('student_panel_cancel'))
+async def student_panel_cancel(callback: CallbackQuery):
+    await callback.message.delete()
+    await callback.answer()
