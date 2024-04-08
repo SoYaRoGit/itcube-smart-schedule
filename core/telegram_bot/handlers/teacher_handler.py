@@ -4,11 +4,12 @@ from telegram_bot.filters.filter import AuthenticationTeacherFilter
 from telegram_bot.keyboards.teacher_keyboard import inline_keyboard_panel, inline_keyboard_backward, builder_inline_keyboard_group
 from telegram_bot.eduutils.edu_utils_db import get_teacher_send_personal_data, get_teacher_send_schedule, teacher_send_schedule_reminder
 from telegram_bot.loader import scheduler, bot
+from telegram_bot.states.teacher_message_state import teacher_message_state_router
 from asgiref.sync import sync_to_async
 
 
 teacher_handler = Router()
-
+teacher_handler.include_router(teacher_message_state_router)
 teacher_handler.message(AuthenticationTeacherFilter())
 
 
