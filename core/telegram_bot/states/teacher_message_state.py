@@ -1,5 +1,4 @@
 from aiogram import Router, F
-from aiogram.methods import SendMessage
 from aiogram.types import Message, CallbackQuery
 from aiogram.methods import EditMessageText
 from aiogram.filters import StateFilter
