@@ -60,7 +60,7 @@ async def student_send_schedule(callback: CallbackQuery):
     await callback.answer()
     
 
-@teacher_handler.message()
+# @teacher_handler.message()
 async def notifying_teachers(bot: Bot):
     reminder = await sync_to_async(teacher_send_schedule_reminder)()
     

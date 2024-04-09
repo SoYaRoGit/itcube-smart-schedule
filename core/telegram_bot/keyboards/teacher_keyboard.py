@@ -48,12 +48,19 @@ inline_keyboard_backward = InlineKeyboardMarkup(
 
 async def builder_inline_keyboard_group(telegram_id_teacher: int) -> InlineKeyboardBuilder:
     inline_keyboard_groups = InlineKeyboardBuilder()
-    button_group: list[InlineKeyboardButton] = await sync_to_async(get_groups_teacher)(telegram_id_teacher)
+    button_group: list[tuple[str, str]] = await sync_to_async(get_groups_teacher)(telegram_id_teacher)
     
     for button_text, callback_data in button_group:
         inline_keyboard_groups.add(InlineKeyboardButton(
             text = button_text,
             callback_data = callback_data
         ))
+    inline_keyboard_groups.add(
+        InlineKeyboardButton(
+            text = 'Назад',
+            callback_data = 'teacher_inline_keyboard_backward'
+        )
+    )  
     
+    inline_keyboard_groups.adjust(1)
     return inline_keyboard_groups.as_markup()
