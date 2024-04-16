@@ -59,6 +59,5 @@ inline_keyboard_authentication_check = InlineKeyboardMarkup(
                 callback_data='authentication_check'
             )
         ]
-        
     ]
 )

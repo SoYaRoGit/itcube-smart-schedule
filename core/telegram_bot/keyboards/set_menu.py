@@ -1,5 +1,6 @@
 from aiogram import Bot
 from aiogram.types import BotCommand
+
 from telegram_bot.lexicon.commands import LEXICON_COMMANDS_RU
 
 
@@ -11,10 +12,8 @@ def get_command_menu() -> list[BotCommand]:
         list[BotCommand]: Список объектов BotCommand, содержащих команды и их описания.
     """
     command_menu = [
-        BotCommand(
-            command=command,
-            description=description
-        ) for command, description in LEXICON_COMMANDS_RU.items()
+        BotCommand(command=command, description=description)
+        for command, description in LEXICON_COMMANDS_RU.items()
     ]
     return command_menu
 

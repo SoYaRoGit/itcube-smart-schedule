@@ -1,15 +1,18 @@
-from aiogram import Router, F, html, Bot
-from aiogram.types import Message, CallbackQuery
-from telegram_bot.filters.filter import AuthenticationStudentFilter
+from aiogram import Bot, F, Router, html
+from aiogram.types import CallbackQuery, Message
+from asgiref.sync import sync_to_async
 from telegram_bot.eduutils.edu_utils_db import (
-    get_student_send_personal_data, 
+    get_student_confidential_data,
+    get_student_send_personal_data,
     get_student_send_schedule,
     student_send_schedule_reminder,
-    get_student_confidential_data
 )
-from telegram_bot.keyboards.student_keyboard import inline_keyboard_panel, inline_keyboard_backward
-from asgiref.sync import sync_to_async
-from telegram_bot.loader import scheduler, bot
+from telegram_bot.filters.filter import AuthenticationStudentFilter
+from telegram_bot.keyboards.student_keyboard import (
+    inline_keyboard_backward,
+    inline_keyboard_panel,
+)
+from telegram_bot.loader import bot, scheduler
 
 # Инициализация роутера
 student_handler = Router()
@@ -19,25 +22,31 @@ student_handler.message.filter(AuthenticationStudentFilter())
 student_handler.callback_query.filter(AuthenticationStudentFilter())
 
 
-@student_handler.message(F.text == '/panel')
+@student_handler.message(F.text == "/panel")
 async def cmd_panel_student(message: Message):
     await message.delete()
     await message.answer(
-        text = 'Панель обучающегося',
-        reply_markup = inline_keyboard_panel,
-        protect_content = True
+        text="Панель обучающегося",
+        reply_markup=inline_keyboard_panel,
+        protect_content=True,
     )
-    
 
-@student_handler.callback_query(F.data.in_('student_send_personal_data'))
+
+@student_handler.callback_query(F.data.in_("student_send_personal_data"))
 async def student_send_personal_data(callback: CallbackQuery):
-    personal_data = await sync_to_async(get_student_send_personal_data)(callback.from_user.id)
-    
-    entities = callback.message.entities or []  # Получение сущностей сообщения (если есть)
+    personal_data = await sync_to_async(get_student_send_personal_data)(
+        callback.from_user.id
+    )
+
+    entities = (
+        callback.message.entities or []
+    )  # Получение сущностей сообщения (если есть)
     for item in entities:
         if item.type in personal_data.keys():
-            personal_data[item.type] = item.extract_from(callback.message.text)  # Извлечение информации из сущностей сообщения
-        
+            personal_data[item.type] = item.extract_from(
+                callback.message.text
+            )  # Извлечение информации из сущностей сообщения
+
     await callback.message.edit_text(
         f'📹 Данные учетной записи\n'
         f'Уникальный ID: {html.quote(str(personal_data["id"]))}\n'
@@ -46,21 +55,27 @@ async def student_send_personal_data(callback: CallbackQuery):
         f'ФИО: {html.quote(str(personal_data["full_name"]))}\n'
         f'Телеграм ID: {html.quote(str(personal_data["telegram_id"]))}\n'
         f'Статус аутентификации: {html.quote(str(personal_data["is_authentication"]))}\n',
-        reply_markup = inline_keyboard_backward
-        )
-    
+        reply_markup=inline_keyboard_backward,
+    )
+
     await callback.answer()
 
 
-@student_handler.callback_query(F.data.in_('student_send_confidential_data'))
+@student_handler.callback_query(F.data.in_("student_send_confidential_data"))
 async def student_send_confidential_data(callback: CallbackQuery):
-    confidential_data = await sync_to_async(get_student_confidential_data)(callback.from_user.id)
-    
-    entities = callback.message.entities or []  # Получение сущностей сообщения (если есть)
+    confidential_data = await sync_to_async(get_student_confidential_data)(
+        callback.from_user.id
+    )
+
+    entities = (
+        callback.message.entities or []
+    )  # Получение сущностей сообщения (если есть)
     for item in entities:
         if item.type in confidential_data.keys():
-            confidential_data[item.type] = item.extract_from(callback.message.text)  # Извлечение информации из сущностей сообщения
-    
+            confidential_data[item.type] = item.extract_from(
+                callback.message.text
+            )  # Извлечение информации из сущностей сообщения
+
     await callback.message.edit_text(
         f'📹 Конфиденциальные данные\n'
         f'ФИО Родителя: {html.quote(str(confidential_data["parent_full_name"]))}\n'
@@ -77,48 +92,45 @@ async def student_send_confidential_data(callback: CallbackQuery):
         f'Контактные данные ученика: {html.quote(str(confidential_data["student_contact"]))}\n'
         f'Медицинские ограничения: {html.quote(str(confidential_data["medical_restrictions"]))}\n'
         f'Дата заключения контракта: {html.quote(str(confidential_data["date_contract"]))}\n',
-        reply_markup = inline_keyboard_backward
+        reply_markup=inline_keyboard_backward,
     )
     await callback.answer()
 
-@student_handler.callback_query(F.data.in_('student_send_schedule'))
+
+@student_handler.callback_query(F.data.in_("student_send_schedule"))
 async def student_send_schedule(callback: CallbackQuery):
     scheduele = await sync_to_async(get_student_send_schedule)(callback.from_user.id)
     if scheduele:
-        await callback.message.answer(
-            text="\n".join(str(item) for item in scheduele)
-        )
+        await callback.message.answer(text="\n".join(str(item) for item in scheduele))
     else:
         await callback.message.answer(
-            text='В данный момент нет запланированных занятий'
+            text="В данный момент нет запланированных занятий"
         )
-    
+
     await callback.answer()
-    
+
 
 async def notifying_student(bot: Bot):
     reminder = await sync_to_async(student_send_schedule_reminder)()
-    
+
     for telegram_id, schedulers in reminder.items():
         if schedulers:
             for scheduler in schedulers:
-                await bot.send_message(
-                    chat_id=telegram_id,
-                    text=scheduler
-                )
-scheduler.add_job(notifying_student, "interval", seconds=60, kwargs={'bot': bot})
+                await bot.send_message(chat_id=telegram_id, text=scheduler)
 
 
-@student_handler.callback_query(F.data.in_('student_inline_keyboard_backward'))
+scheduler.add_job(notifying_student, "interval", seconds=60, kwargs={"bot": bot})
+
+
+@student_handler.callback_query(F.data.in_("student_inline_keyboard_backward"))
 async def student_inline_keyboard_backward(callback: CallbackQuery):
     await callback.message.edit_text(
-        text='Панель обучающегося',
-        reply_markup= inline_keyboard_panel
+        text="Панель обучающегося", reply_markup=inline_keyboard_panel
     )
     await callback.answer()
-    
-    
-@student_handler.callback_query(F.data.in_('student_panel_cancel'))
+
+
+@student_handler.callback_query(F.data.in_("student_panel_cancel"))
 async def student_panel_cancel(callback: CallbackQuery):
     await callback.message.delete()
     await callback.answer()
