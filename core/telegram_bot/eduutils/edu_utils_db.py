@@ -183,7 +183,9 @@ def teacher_send_schedule_reminder():
             start_datetime = timezone.datetime.combine(
                 schedule.date, schedule.start_time
             )
-            end_datetime = timezone.datetime.combine(schedule.date, schedule.end_time)
+            end_datetime = timezone.datetime.combine(
+                schedule.date, schedule.end_time
+            )
 
             if tine_now == start_datetime - timedelta(minutes=TIME_BEFORE_TEACHER):
                 schedule_strings.append(
