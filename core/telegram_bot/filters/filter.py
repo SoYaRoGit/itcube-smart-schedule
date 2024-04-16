@@ -58,8 +58,8 @@ def authentication_update(telegram_id: int, state_data) -> bool:
         password = state_data['password']
     ).exists()
     
-    # Если студент c такими данными существует, то проводим аутентификацию
-    if student:
+    # Если студент c такими данными существует и он не авторизован, то проводим аутентификацию
+    if student and not student.is_authentication == True:
         Student.objects.filter(
             login = state_data['login'],
             password = state_data['password']
@@ -77,7 +77,7 @@ def authentication_update(telegram_id: int, state_data) -> bool:
     ).exists()
     
     # Если преподаватель c такими данными существует, то проводим аутентификацию
-    if teacher:
+    if teacher and not teacher.is_authentication == True:
         Teacher.objects.filter(
             login = state_data['login'],
             password = state_data['password']
