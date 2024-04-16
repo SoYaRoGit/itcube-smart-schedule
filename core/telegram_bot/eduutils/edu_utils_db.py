@@ -49,7 +49,7 @@ def get_teacher_send_schedule(telegram_id: int):
     
     # Фильтруем расписание по студенту и дате занятия, а также времени начала занятия
     schedules = Schedule.objects.filter(
-        Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+        Q(date=now.date(), end_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
         group__teacher=teacher,
         date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
     ).order_by('date', 'start_time').all()
