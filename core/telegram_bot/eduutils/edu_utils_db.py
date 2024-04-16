@@ -150,7 +150,8 @@ def get_students_group_telegram_id(name_group: str) -> list:
         students = Student.objects.filter(studentgroup__name = name_group)
         
         for student in students:
-            students_telegram_id.append(student.telegram_id)
+            if student.is_authentication == True:
+                students_telegram_id.append(student.telegram_id)
         
         return students_telegram_id
     except Student.DoesNotExist:
@@ -162,7 +163,8 @@ def get_students_group_full_name(name_group: str) -> list[str]:
         students = Student.objects.filter(studentgroup__name = name_group)
         
         for student in students:
-            students_name.append(student.full_name)
+            if student.is_authentication == True:
+                students_name.append(student.full_name)
         
         return students_name
     except Student.DoesNotExist:
