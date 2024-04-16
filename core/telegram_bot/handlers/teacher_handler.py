@@ -33,7 +33,7 @@ async def teacher_send_personal_data(callback: CallbackQuery):
             personal_data[item.type] = item.extract_from(callback.message.text)  # Извлечение информации из сущностей сообщения
         
     await callback.message.edit_text(
-        f'📹 Ваши персональные данные\n'
+        f'📹 Данные учетной записи\n'
         f'Уникальный ID: {html.quote(str(personal_data["id"]))}\n'
         f'Логин: {html.quote(str(personal_data["login"]))}\n'
         f'Пароль: {html.quote(str(personal_data["password"]))}\n'
