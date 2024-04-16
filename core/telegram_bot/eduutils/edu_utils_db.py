@@ -15,7 +15,7 @@ def __student_to_dict(student):
         'is_authentication': student.is_authentication,
     }
 
-def get_student_send_personal_data(telegram_id):
+def get_student_send_personal_data(telegram_id: int) -> dict:
     try:
         # Получить ученика по его Telegram ID
         student = Student.objects.get(telegram_id=telegram_id)
@@ -33,7 +33,7 @@ def get_student_send_schedule(telegram_id: int):
     
     # Фильтруем расписание по студенту и дате занятия, а также времени начала занятия
     schedules = Schedule.objects.filter(
-        Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+        Q(date=now.date(), end_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
         group__students=student,
         date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
     ).order_by('date', 'start_time').all()
@@ -60,8 +60,8 @@ def get_teacher_send_schedule(telegram_id: int):
 
 
 def student_send_schedule_reminder():
-    now = datetime.now()  # Получаем текущую дату и время
-    notification_time = now + timedelta(minutes=1) # Время оповещения 
+    time_now = datetime.now().replace(second=0, microsecond=0)  # Получаем текущую дату и время
+    notification_time_before = timedelta(minutes=2) # Время оповещения до начала занятия
     
     students = Student.objects.all()
     
@@ -69,19 +69,26 @@ def student_send_schedule_reminder():
     
     for student in students:
         schedules = Schedule.objects.filter(
-            Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+            date=time_now.date(),  # Занятия только на сегодняшний день
             group__students=student,
-            date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
+            end_time__gte=time_now.time()  # Занятия до момента их окончания
         ).order_by('date', 'start_time').all()
+        
         schedule_strings = []
         
         for schedule in schedules:
             start_datetime = timezone.datetime.combine(schedule.date, schedule.start_time)
-            # Проверяем, находится ли текущее время за 30 минут до начала занятия
-            if notification_time >= start_datetime >= now:
-                # Если условие выполняется, добавляем информацию о занятии в список для оповещения
+            end_datetime = timezone.datetime.combine(schedule.date, schedule.end_time)
+            
+            if time_now == start_datetime - notification_time_before:
                 schedule_strings.append(f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
 
+            if time_now == start_datetime:
+                schedule_strings.append(f"[Начало занятия]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
+            
+            if time_now == end_datetime:
+                schedule_strings.append(f"[Оповещение о завершении]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
+                schedule.delete()
         students_schedule[student.telegram_id] = schedule_strings
     
     return students_schedule

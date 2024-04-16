@@ -66,7 +66,6 @@ async def student_send_schedule(callback: CallbackQuery):
     await callback.answer()
     
 
-@student_handler.message()
 async def notifying_student(bot: Bot):
     reminder = await sync_to_async(student_send_schedule_reminder)()
     
@@ -77,7 +76,6 @@ async def notifying_student(bot: Bot):
                     chat_id=telegram_id,
                     text=scheduler
                 )
-    print(reminder)
 scheduler.add_job(notifying_student, "interval", seconds=60, kwargs={'bot': bot})
 
 

@@ -29,7 +29,6 @@ async def teacher_message_state_start(callback: CallbackQuery, group: str, state
         text = f'Подтвердите выбор выбранной группы: {group}',
         reply_markup = inline_keyboard_teacher_message_state_menu
     )
-    # await state.set_state(FSMTeacherSendMessageForm.MESSAGE)
     await callback.answer()
     
 
