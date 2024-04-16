@@ -18,7 +18,8 @@ async def cmd_panel_teacher(message: Message):
     await message.delete()
     await message.answer(
         text = 'Панель преподавателя',
-        reply_markup = inline_keyboard_panel
+        reply_markup = inline_keyboard_panel,
+        protect_content = True
     )
 
 
