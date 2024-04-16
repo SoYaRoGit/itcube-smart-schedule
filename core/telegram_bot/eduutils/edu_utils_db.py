@@ -3,6 +3,11 @@ from datetime import datetime
 from django.db.models import Q
 from telegram_bot.models import Student, Schedule, Teacher, StudentGroup, StudentContentDetails
 from datetime import timedelta
+from django.conf import settings
+
+
+TIME_BEFORE_STUDENT = settings.TIME_BEFORE_STUDENT
+TIME_BEFORE_TEACHER = settings.TIME_BEFORE_TEACHER
 
 
 def __student_to_dict_personal_data(student):
@@ -87,7 +92,6 @@ def get_teacher_send_schedule(telegram_id: int):
 
 def student_send_schedule_reminder():
     time_now = datetime.now().replace(second=0, microsecond=0)  # Получаем текущую дату и время
-    notification_time_before = timedelta(minutes=2) # Время оповещения до начала занятия
     
     students = Student.objects.all()
     
@@ -106,7 +110,7 @@ def student_send_schedule_reminder():
             start_datetime = timezone.datetime.combine(schedule.date, schedule.start_time)
             end_datetime = timezone.datetime.combine(schedule.date, schedule.end_time)
             
-            if time_now == start_datetime - notification_time_before:
+            if time_now == start_datetime - timedelta(minutes=TIME_BEFORE_STUDENT):
                 schedule_strings.append(f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
 
             if time_now == start_datetime:
@@ -122,7 +126,6 @@ def student_send_schedule_reminder():
 
 def teacher_send_schedule_reminder():
     tine_now = datetime.now().replace(second=0, microsecond=0)  # Получаем текущую дату и время
-    notification_time_before = timedelta(minutes=2) # Время оповещения до начала занятия
     
     teachers = Teacher.objects.all()
     
@@ -141,7 +144,7 @@ def teacher_send_schedule_reminder():
             start_datetime = timezone.datetime.combine(schedule.date, schedule.start_time)
             end_datetime = timezone.datetime.combine(schedule.date, schedule.end_time)
             
-            if tine_now == start_datetime - notification_time_before:
+            if tine_now == start_datetime - timedelta(minutes=TIME_BEFORE_TEACHER):
                 schedule_strings.append(f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
 
             if tine_now == start_datetime:

@@ -14,6 +14,16 @@ env.read_env()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY_DJANGO')
 
+TIME_BEFORE_STUDENT = env.int('TIME_BEFORE_STUDENT')
+
+if TIME_BEFORE_STUDENT < 0:
+    TIME_BEFORE_STUDENT = abs(TIME_BEFORE_STUDENT)
+    
+TIME_BEFORE_TEACHER = env.int('TIME_BEFORE_TEACHER')
+if TIME_BEFORE_TEACHER < 0:
+    TIME_BEFORE_TEACHER = abs(TIME_BEFORE_TEACHER)
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG')
 
