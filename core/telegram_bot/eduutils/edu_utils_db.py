@@ -88,8 +88,8 @@ def student_send_schedule_reminder():
 
 
 def teacher_send_schedule_reminder():
-    now = datetime.now()  # Получаем текущую дату и время
-    notification_time = now + timedelta(minutes=1) # Время оповещения 
+    tine_now = datetime.now().replace(second=0, microsecond=0)  # Получаем текущую дату и время
+    notification_time_before = timedelta(minutes=2) # Время оповещения до начала занятия
     
     teachers = Teacher.objects.all()
     
@@ -97,22 +97,26 @@ def teacher_send_schedule_reminder():
     
     for teacher in teachers:
         schedules = Schedule.objects.filter(
-            Q(date=now.date(), start_time__gte=now.time()) | Q(date__gt=now.date()), # Начинающиеся после текущего времени
+            date=tine_now.date(),  # Занятия только на сегодняшний день
             group__teacher=teacher,
-            date__gte=now.date(),  # Занятия начиная с сегодняшнего дня
+            end_time__gte=tine_now.time()  # Занятия до момента их окончания
         ).order_by('date', 'start_time').all()
         
         schedule_strings = []
         
         for schedule in schedules:
             start_datetime = timezone.datetime.combine(schedule.date, schedule.start_time)
-            # Проверяем, находится ли текущее время за 30 минут до начала занятия
-            if notification_time >= start_datetime >= now:
-                # Если условие выполняется, добавляем информацию о занятии в список для оповещения
+            end_datetime = timezone.datetime.combine(schedule.date, schedule.end_time)
+            
+            if tine_now == start_datetime - notification_time_before:
                 schedule_strings.append(f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
-                schedule.delete()  # Удалить только текущее занятие из базы данных
 
-
+            if tine_now == start_datetime:
+                schedule_strings.append(f"[Начало занятия]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
+            
+            if tine_now == end_datetime:
+                schedule_strings.append(f"[Оповещение о завершении]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}")
+                schedule.delete()
         teachers_schedule[teacher.telegram_id] = schedule_strings
     
     return teachers_schedule

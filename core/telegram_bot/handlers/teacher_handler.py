@@ -46,7 +46,7 @@ async def teacher_send_personal_data(callback: CallbackQuery):
 
 
 @teacher_handler.callback_query(F.data.in_('teacher_send_schedule'))
-async def student_send_schedule(callback: CallbackQuery):
+async def teacher_send_schedule(callback: CallbackQuery):
     scheduele = await sync_to_async(get_teacher_send_schedule)(callback.from_user.id)
     if scheduele:
         await callback.message.answer(
@@ -75,8 +75,6 @@ async def notifying_teachers(bot: Bot):
 scheduler.add_job(notifying_teachers, "interval", seconds=60, kwargs={'bot': bot})
 
 
-
-
 @teacher_handler.callback_query(F.data.in_('teacher_send_message_for_group'))
 async def teacher_send_message_for_group(callback: CallbackQuery):
     keyboard = await builder_inline_keyboard_group(callback.from_user.id)
@@ -88,7 +86,7 @@ async def teacher_send_message_for_group(callback: CallbackQuery):
 
 
 @teacher_handler.callback_query(F.data.in_('teacher_inline_keyboard_backward'))
-async def student_inline_keyboard_backward(callback: CallbackQuery):
+async def teacher_inline_keyboard_backward(callback: CallbackQuery):
     await callback.message.edit_text(
         text = 'Панель преподавателя',
         reply_markup = inline_keyboard_panel
