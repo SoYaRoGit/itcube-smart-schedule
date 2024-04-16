@@ -8,7 +8,7 @@ inline_keyboard_panel = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text='Личные данные',
+                text='Учетная запись',
                 callback_data='teacher_send_personal_data'
             )
         ],

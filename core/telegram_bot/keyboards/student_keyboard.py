@@ -5,8 +5,14 @@ inline_keyboard_panel = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text='Личные данные',
+                text='Учетная запись',
                 callback_data='student_send_personal_data'
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text='Конфиденциальные данные',
+                callback_data='student_send_confidential_data'
             )
         ],
         [
