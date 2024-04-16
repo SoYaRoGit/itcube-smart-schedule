@@ -53,10 +53,10 @@ class NotAuthenticationFilter(BaseFilter):
 
 def authentication_update(telegram_id: int, state_data) -> bool:
     # Проверяем, существует ли студент с указанным логином, паролем
-    student = Student.objects.filter(
+    student = Student.objects.get(
         login = state_data['login'],
         password = state_data['password']
-    ).exists()
+    )
     
     # Если студент c такими данными существует и он не авторизован, то проводим аутентификацию
     if student and not student.is_authentication == True:
@@ -71,10 +71,10 @@ def authentication_update(telegram_id: int, state_data) -> bool:
         return True
     
     # Проверяем, существует ли преподаватель с указанным логином, паролем
-    teacher = Teacher.objects.filter(
+    teacher = Teacher.objects.get(
         login = state_data['login'],
         password = state_data['password']
-    ).exists()
+    )
     
     # Если преподаватель c такими данными существует, то проводим аутентификацию
     if teacher and not teacher.is_authentication == True:

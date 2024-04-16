@@ -13,7 +13,7 @@ teacher_handler.include_router(teacher_message_state_router)
 teacher_handler.message(AuthenticationTeacherFilter())
 
 
-@teacher_handler.message(F.text == '/panel')
+@teacher_handler.message(F.text == '/panel', AuthenticationTeacherFilter())
 async def cmd_panel_teacher(message: Message):
     await message.delete()
     await message.answer(
