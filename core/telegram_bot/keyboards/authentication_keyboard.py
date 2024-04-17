@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+# Клавиатура с кнопкой авторизации
 inline_keyboard_authentication = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -12,6 +13,7 @@ inline_keyboard_authentication = InlineKeyboardMarkup(
     ]
 )
 
+# Клавиатура с окном подтверждения
 inline_keyboard_authentication_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -27,7 +29,7 @@ inline_keyboard_authentication_menu = InlineKeyboardMarkup(
     ]
 )
 
-
+# Клавиатура с отменой(удаление)
 inline_keyboard_authentication_cancel = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -39,7 +41,7 @@ inline_keyboard_authentication_cancel = InlineKeyboardMarkup(
     ]
 )
 
-
+# Клавиатура для подтверждения введенных данных
 inline_keyboard_authentication_check = InlineKeyboardMarkup(
     inline_keyboard=[
         [
