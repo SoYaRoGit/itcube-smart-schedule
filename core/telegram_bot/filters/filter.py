@@ -3,137 +3,127 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from asgiref.sync import sync_to_async
 
-from telegram_bot.eduutils.edu_utils_db import get_groups_teacher
-from telegram_bot.models import Student, Teacher
-
-
-def send_full_name(telegram_id: int) -> str:
-    # Проверяем, существует ли студент с указанным telegram_id
-    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
-
-    # Если студент существует, проверяем его аутентификацию
-    if student_exists:
-        student = Student.objects.get(telegram_id=telegram_id)
-        if student.is_authentication:
-            return str(student.full_name)  # Если аутентифицирован, возвращаем ФИО
-
-    # Если студент не найден или не аутентифицирован, проверяем преподавателя
-    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
-    if teacher_exists:
-        teacher = Teacher.objects.get(telegram_id=telegram_id)
-        if teacher.is_authentication:
-            return str(teacher.full_name)  # Если аутентифицирован, возвращаем True
-
-
-def not_authentication(telegram_id: int) -> bool:
-    # Проверяем, существует ли студент с указанным telegram_id
-    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
-
-    # Если студент существует, проверяем его аутентификацию
-    if student_exists:
-        student = Student.objects.get(telegram_id=telegram_id)
-        if student.is_authentication:
-            return False  # Если аутентифицирован, возвращаем False
-
-    # Если студент не найден или не аутентифицирован, проверяем преподавателя
-    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
-    if teacher_exists:
-        teacher = Teacher.objects.get(telegram_id=telegram_id)
-        if teacher.is_authentication:
-            return False  # Если аутентифицирован, возвращаем False
-
-    # Если ни студент, ни преподаватель не найдены или не аутентифицированы, возвращаем True
-    return True
+from telegram_bot.eduutils.edu_utils_db import (
+    authentication_student,
+    authentication_teacher,
+    authentication_update,
+    get_groups_teacher,
+    not_authentication,
+)
 
 
 class NotAuthenticationFilter(BaseFilter):
+    """
+    Фильтр для проверки, аутентифицирован ли пользователь.
+
+    Args:
+        BaseFilter: Базовый класс для создания пользовательских фильтров.
+
+    Returns:
+        bool: True, если пользователь не аутентифицирован, иначе False.
+    """
+
     async def __call__(self, message: Message) -> bool:
+        """
+        Проверка, аутентифицирован ли пользователь по его telegram_id.
+
+        Args:
+            message (Message): Объект сообщения пользователя.
+
+        Returns:
+            bool: True, если пользователь не аутентифицирован, иначе False.
+        """
         telegram_id = message.from_user.id
         return await sync_to_async(not_authentication)(telegram_id)
 
 
-def authentication_update(telegram_id: int, state_data) -> bool:
-    # Проверяем, существует ли студент с указанным логином, паролем
-    student = Student.objects.filter(
-        login=state_data["login"],
-        password=state_data["password"],
-        is_authentication=False,
-    ).exists()
-
-    # Если студент c такими данными существует, то проводим аутентификацию
-    if student:
-        Student.objects.filter(
-            login=state_data["login"], password=state_data["password"]
-        ).update(telegram_id=telegram_id, is_authentication=True)
-
-        return True
-
-    # Проверяем, существует ли преподаватель с указанным логином, паролем
-    teacher = Teacher.objects.filter(
-        login=state_data["login"],
-        password=state_data["password"],
-        is_authentication=False,
-    ).exists()
-
-    # Если преподаватель c такими данными существует, то проводим аутентификацию
-    if teacher:
-        Teacher.objects.filter(
-            login=state_data["login"], password=state_data["password"]
-        ).update(telegram_id=telegram_id, is_authentication=True)
-
-        return True
-
-    # В случае, если не найдены данные, то возвращаем False
-    return False
-
-
 class AuthenticationUpdateFilter(BaseFilter):
-    async def __call__(self, callback: CallbackQuery, state: FSMContext):
+    """
+    Фильтр для проверки возможности обновления данных аутентификации.
+
+    Args:
+        BaseFilter: Базовый класс для фильтров aiogram.
+
+    Returns:
+        bool: True, если обновление данных аутентификации возможно, иначе False.
+    """
+
+    async def __call__(self, callback: CallbackQuery, state: FSMContext) -> bool:
+        """
+        Проверяет возможность обновления данных аутентификации.
+
+        Args:
+            callback (CallbackQuery): CallbackQuery объект.
+            state (FSMContext): Контекст конечного автомата.
+
+        Returns:
+            bool: True, если обновление данных аутентификации возможно, иначе False.
+        """
         telegram_id = callback.from_user.id
         state_data = await state.get_data()
         return await sync_to_async(authentication_update)(telegram_id, state_data)
 
 
-def authentication_student(telegram_id: int) -> bool:
-    # Проверяем, существует ли студент с указанным telegram_id
-    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
-
-    # Если студент существует, проверяем его аутентификацию
-    if student_exists:
-        student = Student.objects.get(telegram_id=telegram_id)
-        if student.is_authentication:
-            return True  # Если аутентифицирован, возвращаем False
-
-    return False
-
-
 class AuthenticationStudentFilter(BaseFilter):
+    """
+    Фильтр для проверки аутентификации студента.
+    """
+
     async def __call__(self, message: Message) -> bool:
+        """
+        Проверяет аутентификацию студента по Telegram ID.
+
+        Args:
+            message (Message): Объект сообщения.
+
+        Returns:
+            bool: True, если студент аутентифицирован, иначе False.
+        """
         telegram_id: int = message.from_user.id
         return await sync_to_async(authentication_student)(telegram_id)
 
 
-def authentication_teacher(telegram_id: int) -> bool:
-    # Проверяем, существует ли студент с указанным telegram_id
-    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
-
-    # Если студент существует, проверяем его аутентификацию
-    if teacher_exists:
-        teacher = Teacher.objects.get(telegram_id=telegram_id)
-        if teacher.is_authentication:
-            return True  # Если аутентифицирован, возвращаем False
-
-    return False
-
-
 class AuthenticationTeacherFilter(BaseFilter):
+    """
+    Фильтр для проверки аутентификации преподавателя.
+
+    Attributes:
+        message (Message): Сообщение, полученное от пользователя.
+    """
+
     async def __call__(self, message: Message) -> bool:
+        """
+        Проверяет аутентификацию преподавателя по Telegram ID.
+
+        Args:
+            message (Message): Сообщение, полученное от пользователя.
+
+        Returns:
+            bool: True, если преподаватель аутентифицирован, иначе False.
+        """
         telegram_id: int = message.from_user.id
         return await sync_to_async(authentication_teacher)(telegram_id)
 
 
 class CallbackTeacherGroupsFilter(BaseFilter):
+    """
+    Фильтр для проверки сообщений от преподавателя по группам.
+
+    Attributes:
+        callback (CallbackQuery): Обратный вызов (callback), полученный от пользователя.
+    """
+
     async def __call__(self, callback: CallbackQuery) -> bool | dict[str, str]:
+        """
+        Проверяет, принадлежит ли данные callback одной из групп преподавателя.
+
+        Args:
+            callback (CallbackQuery): Обратный вызов (callback), полученный от пользователя.
+
+        Returns:
+            Union[bool, dict[str, str]]: False, если callback не принадлежит ни одной группе преподавателя,
+                в противном случае возвращает словарь с информацией о группе, в которой находится callback.
+        """
         teacher_groups: list[tuple[str]] = await sync_to_async(get_groups_teacher)(
             callback.from_user.id
         )
