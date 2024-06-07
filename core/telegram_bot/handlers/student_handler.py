@@ -66,34 +66,40 @@ async def student_send_confidential_data(callback: CallbackQuery):
     confidential_data = await sync_to_async(get_student_confidential_data)(
         callback.from_user.id
     )
+    
+    if confidential_data is not None:
+        entities = (
+            callback.message.entities or []
+        )  # Получение сущностей сообщения (если есть)
+        for item in entities:
+            if item.type in confidential_data.keys():
+                confidential_data[item.type] = item.extract_from(
+                    callback.message.text
+                )  # Извлечение информации из сущностей сообщения
 
-    entities = (
-        callback.message.entities or []
-    )  # Получение сущностей сообщения (если есть)
-    for item in entities:
-        if item.type in confidential_data.keys():
-            confidential_data[item.type] = item.extract_from(
-                callback.message.text
-            )  # Извлечение информации из сущностей сообщения
-
-    await callback.message.edit_text(
-        f'📹 Конфиденциальные данные\n'
-        f'ФИО Родителя: {html.quote(str(confidential_data["parent_full_name"]))}\n'
-        f'Место регистрации родителя: {html.quote(str(confidential_data["parent_residential_adress"]))}\n'
-        f'Дата рождения: {html.quote(str(confidential_data["date_birth"]))}\n'
-        f'14-ий возраст: {html.quote(str(confidential_data["if_fourteen"]))}\n'
-        f'Адрес проживания: {html.quote(str(confidential_data["student_residential_adress"]))}\n'
-        f'Паспортные данные: {html.quote(str(confidential_data["passport_data"]))}\n'
-        f'Кем выдан паспорт: {html.quote(str(confidential_data["passport_data_issued_by"]))}\n'
-        f'Дата выдачи паспорта: {html.quote(str(confidential_data["passport_data_date_of_issueс"]))}\n'
-        f'Учебная организация: {html.quote(str(confidential_data["name_education_organization"]))}\n'
-        f'Номер сертификата: {html.quote(str(confidential_data["certificate_number"]))}\n'
-        f'Контактные данные родителя: {html.quote(str(confidential_data["parent_contact"]))}\n'
-        f'Контактные данные ученика: {html.quote(str(confidential_data["student_contact"]))}\n'
-        f'Медицинские ограничения: {html.quote(str(confidential_data["medical_restrictions"]))}\n'
-        f'Дата заключения контракта: {html.quote(str(confidential_data["date_contract"]))}\n',
-        reply_markup=inline_keyboard_backward,
-    )
+        await callback.message.edit_text(
+            f'📹 Конфиденциальные данные\n'
+            f'ФИО Родителя: {html.quote(str(confidential_data["parent_full_name"]))}\n'
+            f'Место регистрации родителя: {html.quote(str(confidential_data["parent_residential_adress"]))}\n'
+            f'Дата рождения: {html.quote(str(confidential_data["date_birth"]))}\n'
+            f'14-ий возраст: {html.quote(str(confidential_data["if_fourteen"]))}\n'
+            f'Адрес проживания: {html.quote(str(confidential_data["student_residential_adress"]))}\n'
+            f'Паспортные данные: {html.quote(str(confidential_data["passport_data"]))}\n'
+            f'Кем выдан паспорт: {html.quote(str(confidential_data["passport_data_issued_by"]))}\n'
+            f'Дата выдачи паспорта: {html.quote(str(confidential_data["passport_data_date_of_issueс"]))}\n'
+            f'Учебная организация: {html.quote(str(confidential_data["name_education_organization"]))}\n'
+            f'Номер сертификата: {html.quote(str(confidential_data["certificate_number"]))}\n'
+            f'Контактные данные родителя: {html.quote(str(confidential_data["parent_contact"]))}\n'
+            f'Контактные данные ученика: {html.quote(str(confidential_data["student_contact"]))}\n'
+            f'Медицинские ограничения: {html.quote(str(confidential_data["medical_restrictions"]))}\n'
+            f'Дата заключения контракта: {html.quote(str(confidential_data["date_contract"]))}\n',
+            reply_markup=inline_keyboard_backward,
+        )
+    else:
+        await callback.message.edit_text(
+            text="Ваши данные в данный момент не заполнены",
+            reply_markup=inline_keyboard_backward
+        )
     await callback.answer()
 
 

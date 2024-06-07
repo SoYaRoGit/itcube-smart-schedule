@@ -1,4 +1,5 @@
 from django.db import models
+from telegram_bot.utils.crypt import CryptoManager
 
 class Student(models.Model):
     "Ученики"
@@ -89,7 +90,7 @@ class StudentContentDetails(models.Model):
 
     parent_full_name = models.CharField(
         verbose_name="ФИО Родителя",
-        max_length=50,
+        max_length=255,
         blank=True,
         null=True,
         help_text="Укажите ФИО Родителя (законного представителя)",
@@ -99,6 +100,7 @@ class StudentContentDetails(models.Model):
         verbose_name="Место регистрации родителя",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите место регистрации родителя (законного представителя)",
     )
 
@@ -110,8 +112,12 @@ class StudentContentDetails(models.Model):
         help_text="Укажите для кого указываются данные",
     )
 
-    date_birth = models.DateField(
-        verbose_name="Дата рождения", blank=True, help_text="Укажите дату рождения"
+    date_birth = models.CharField(
+        verbose_name="Дата рождения",
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Укажите дату рождения"
     )
 
     if_fourteen = models.BooleanField(
@@ -124,6 +130,7 @@ class StudentContentDetails(models.Model):
         verbose_name="Адрес проживания",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите адрес проживания с индексом",
     )
 
@@ -131,6 +138,7 @@ class StudentContentDetails(models.Model):
         verbose_name="Паспортные данные",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите паспортные данные(номер, серия)",
     )
 
@@ -138,23 +146,29 @@ class StudentContentDetails(models.Model):
         verbose_name="Кем выдан",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите кем выдан паспорт",
     )
 
-    passport_data_date_of_issueс = models.DateField(
-        verbose_name="Дата выдачи", blank=True, help_text="Укажите дату выдачи паспорта"
+    passport_data_date_of_issueс = models.CharField(
+        verbose_name="Дата выдачи",
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Укажите дату выдачи паспорта"
     )
 
     name_education_organization = models.CharField(
         verbose_name="Учебная организация",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите название учебной организации",
     )
 
     certificate_number = models.CharField(
         verbose_name="Номер сертификата",
-        max_length=10,
+        max_length=255,
         unique=True,
         blank=False,
         help_text="Укажите номер сертификата",
@@ -164,6 +178,7 @@ class StudentContentDetails(models.Model):
         verbose_name="Контактные данные родителя",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите контактные данные родителя (номер телефона, эл. почта)",
     )
 
@@ -171,6 +186,7 @@ class StudentContentDetails(models.Model):
         verbose_name="Контактные данные ученика",
         max_length=255,
         blank=True,
+        null=True,
         help_text="Укажите контактные данные родителя (номер телефона, эл. почта)",
     )
 
@@ -180,8 +196,9 @@ class StudentContentDetails(models.Model):
         help_text="Укажите медицинские ограничения (да/нет)",
     )
 
-    date_contract = models.DateField(
+    date_contract = models.CharField(
         verbose_name="Дата заключения контракта",
+        max_length=255,
         blank=False,
         help_text="Укажите дату заключения контракта",
     )
@@ -192,6 +209,22 @@ class StudentContentDetails(models.Model):
 
     def __str__(self) -> str:
         return self.student.full_name
+    
+    def save(self, *args, **kwargs):
+        crypto_manager = CryptoManager()
+        self.parent_full_name: models.CharField = crypto_manager.encrypt(self.parent_full_name)
+        self.parent_residential_adress: models.CharField = crypto_manager.encrypt(self.parent_residential_adress)
+        self.date_birth: models.CharField = crypto_manager.encrypt(self.date_birth)
+        self.student_residential_adress: models.CharField = crypto_manager.encrypt(self.student_residential_adress)
+        self.passport_data: models.CharField = crypto_manager.encrypt(self.passport_data)
+        self.passport_data_issued_by: models.CharField = crypto_manager.encrypt(self.passport_data_issued_by)
+        self.passport_data_date_of_issueс: models.CharField = crypto_manager.encrypt(self.passport_data_issued_by)
+        self.name_education_organization: models.CharField = crypto_manager.encrypt(self.name_education_organization)
+        self.certificate_number: models.CharField = crypto_manager.encrypt(self.certificate_number)
+        self.parent_contact: models.CharField = crypto_manager.encrypt(self.parent_contact)
+        self.student_contact: models.CharField = crypto_manager.encrypt(self.student_contact)
+        self.date_contract: models.CharField = crypto_manager.encrypt(self.date_contract)
+        super().save(*args, **kwargs)
 
 
 class Teacher(models.Model):
