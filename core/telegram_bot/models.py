@@ -2,7 +2,16 @@ from django.db import models
 from telegram_bot.utils.crypt import CryptoManager
 
 class Student(models.Model):
-    "Ученики"
+    """
+    Модель для хранения информации о студентах.
+
+    Attributes:
+        login (str): Логин студента. Уникальное поле, используется для аутентификации.
+        password (str): Пароль студента. Используется для аутентификации.
+        full_name (str): Полное имя студента.
+        telegram_id (int): Идентификатор Telegram студента, используется для связи.
+        is_authentication (bool): Флаг, указывающий на состояние аутентификации студента.
+    """
 
     login = models.CharField(
         verbose_name="Логин",
@@ -48,11 +57,24 @@ class Student(models.Model):
         verbose_name_plural = "Ученики"
 
     def __str__(self):
+        """
+        Метод для представления объекта студента в виде строки.
+        
+        Returns:
+            str: Полное имя студента.
+        """
         return self.full_name
 
 
 class StudentGroup(models.Model):
-    """Группа учеников"""
+    """
+    Модель для хранения информации о группах учеников.
+
+    Attributes:
+        name (str): Название группы. Уникальное поле, идентифицирует группу.
+        teacher (Teacher): Преподаватель, который ведет занятия с этой группой. 
+        students (ManyToManyField): Список учеников, состоящих в данной группе.
+    """
 
     name = models.CharField(
         verbose_name="Название группы",
@@ -82,11 +104,37 @@ class StudentGroup(models.Model):
         verbose_name_plural = "Группы"
 
     def __str__(self):
+        """
+        Метод для представления объекта группы в виде строки.
+        
+        Returns:
+            str: Название группы.
+        """
         return self.name
 
 
 class StudentContentDetails(models.Model):
-    """Персональные данные ученика"""
+    """
+    Модель для хранения дополнительной информации о студентах.
+
+    Attributes:
+        parent_full_name (str): ФИО родителя или законного представителя студента.
+        parent_residential_adress (str): Место регистрации родителя или законного представителя.
+        student (Student): Связь с объектом студента, к которому относятся эти данные.
+        date_birth (date): Дата рождения студента.
+        if_fourteen (bool): Флаг, указывающий, достиг ли студент 14 лет.
+        student_residential_adress (str): Адрес проживания студента с индексом.
+        passport_data (str): Паспортные данные студента (номер и серия).
+        passport_data_issued_by (str): Организация, выдавшая паспорт студенту.
+        passport_data_date_of_issueс (date): Дата выдачи паспорта студенту.
+        name_education_organization (str): Название учебной организации, в которой учится студент.
+        certificate_number (str): Номер сертификата студента.
+        parent_contact (str): Контактные данные родителя или законного представителя (телефон, эл. почта).
+        student_contact (str): Контактные данные студента (телефон, эл. почта).
+        medical_restrictions (bool): Флаг, указывающий на наличие медицинских ограничений у студента.
+        date_contract (date): Дата заключения контракта о предоставлении образовательных услуг.
+
+    """
 
     parent_full_name = models.CharField(
         verbose_name="ФИО Родителя",
@@ -208,6 +256,12 @@ class StudentContentDetails(models.Model):
         verbose_name_plural = "Дополнительная информация о учениках"
 
     def __str__(self) -> str:
+        """
+        Метод для представления объекта дополнительной информации о студенте в виде строки.
+        
+        Returns:
+            str: Полное имя студента, к которому относятся эти данные.
+        """
         return self.student.full_name
     
     def save(self, *args, **kwargs):
@@ -228,7 +282,16 @@ class StudentContentDetails(models.Model):
 
 
 class Teacher(models.Model):
-    """Преподаватели"""
+    """
+    Модель для хранения информации о преподавателях.
+
+    Attributes:
+        login (str): Логин преподавателя. Уникальное поле, используется для аутентификации.
+        password (str): Пароль преподавателя. Используется для аутентификации.
+        full_name (str): Полное имя преподавателя.
+        telegram_id (int): Идентификатор Telegram преподавателя, используется для связи.
+        is_authentication (bool): Флаг, указывающий на состояние аутентификации преподавателя.
+    """
 
     login = models.CharField(
         verbose_name="Логин",
@@ -274,17 +337,30 @@ class Teacher(models.Model):
         verbose_name_plural = "Преподаватели"
 
     def __str__(self):
+        """
+        Метод для представления объекта преподавателя в виде строки.
+        
+        Returns:
+            str: Полное имя преподавателя.
+        """
         return self.full_name
 
 
 class Subject(models.Model):
+    """
+    Модель для хранения информации о дисциплинах.
+
+    Attributes:
+        name (str): Название дисциплины. Уникальное поле, идентифицирует дисциплину.
+    """
+
     name = models.CharField(
         verbose_name="Название дисциплины",
         max_length=50,
         blank=False,
         unique=True,
         db_index=True,
-        help_text="Укажите название дисцпиплины",
+        help_text="Укажите название дисциплины",
     )
 
     class Meta:
@@ -292,10 +368,23 @@ class Subject(models.Model):
         verbose_name_plural = "Дисциплины"
 
     def __str__(self):
+        """
+        Метод для представления объекта дисциплины в виде строки.
+        
+        Returns:
+            str: Название дисциплины.
+        """
         return self.name
 
 
 class Classroom(models.Model):
+    """
+    Модель для хранения информации о кабинетах.
+
+    Attributes:
+        name (str): Название кабинета.
+    """
+
     name = models.CharField(
         verbose_name="Название кабинета",
         max_length=50,
@@ -308,12 +397,32 @@ class Classroom(models.Model):
         verbose_name_plural = "Кабинеты"
 
     def __str__(self):
+        """
+        Метод для представления объекта кабинета в виде строки.
+        
+        Returns:
+            str: Название кабинета.
+        """
         return self.name
 
 
 class Schedule(models.Model):
+    """
+    Модель для хранения расписания занятий.
+
+    Attributes:
+        date (date): Дата занятия.
+        start_time (time): Время начала занятия.
+        end_time (time): Время окончания занятия.
+        subject (Subject): Дисциплина, которая преподается на занятии.
+        classroom (Classroom): Кабинет, в котором проходит занятие.
+        group (StudentGroup): Группа, для которой назначено занятие.
+    """
+
     date = models.DateField(
-        verbose_name="Дата занятия", blank=False, help_text="Укажите дату занятия"
+        verbose_name="Дата занятия", 
+        blank=False, 
+        help_text="Укажите дату занятия"
     )
 
     start_time = models.TimeField(
@@ -357,4 +466,10 @@ class Schedule(models.Model):
         verbose_name_plural = "Занятия"
 
     def __str__(self):
+        """
+        Метод для представления объекта занятия в виде строки.
+        
+        Returns:
+            str: Строка, представляющая занятие в формате "Дисциплина Кабинет Дата Время начала - Время окончания".
+        """
         return f"{self.subject.name} {self.classroom.name} {self.date} {self.start_time} - {self.end_time}"

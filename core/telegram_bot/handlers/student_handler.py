@@ -14,16 +14,29 @@ from telegram_bot.keyboards.student_keyboard import (
 )
 from telegram_bot.loader import bot, scheduler
 
-# Инициализация роутера
+# Создание роутера для обработки сообщений учеников
 student_handler = Router()
 
-# Пременить фильтр для всех сообщений, для учеников который аутентифицированы
-student_handler.message.filter(AuthenticationStudentFilter())
-student_handler.callback_query.filter(AuthenticationStudentFilter())
+# Применить фильтр для всех сообщений от аутентифицированных учеников
+student_handler.message(AuthenticationStudentFilter())
+
+# Применить фильтр для всех коллбэков от аутентифицированных учеников
+student_handler.callback_query(AuthenticationStudentFilter())
 
 
 @student_handler.message(F.text == "/panel")
 async def cmd_panel_student(message: Message):
+    """
+    Обработчик команды "/panel" для обучающихся.
+
+    Удаляет сообщение с командой и отправляет сообщение с панелью обучающегося.
+
+    Args:
+        message (Message): Входящее сообщение.
+
+    Returns:
+        None
+    """
     await message.delete()
     await message.answer(
         text="Панель обучающегося",
@@ -34,6 +47,15 @@ async def cmd_panel_student(message: Message):
 
 @student_handler.callback_query(F.data.in_("student_send_personal_data"))
 async def student_send_personal_data(callback: CallbackQuery):
+    """
+    Обработчик запроса на отправку персональных данных обучающегося.
+
+    Args:
+        callback (CallbackQuery): Объект обратного вызова.
+
+    Returns:
+        None
+    """
     personal_data = await sync_to_async(get_student_send_personal_data)(
         callback.from_user.id
     )
@@ -63,6 +85,15 @@ async def student_send_personal_data(callback: CallbackQuery):
 
 @student_handler.callback_query(F.data.in_("student_send_confidential_data"))
 async def student_send_confidential_data(callback: CallbackQuery):
+    """
+    Обработчик запроса на отправку конфиденциальных данных обучающегося.
+
+    Args:
+        callback (CallbackQuery): Объект обратного вызова.
+
+    Returns:
+        None
+    """
     confidential_data = await sync_to_async(get_student_confidential_data)(
         callback.from_user.id
     )
@@ -105,6 +136,15 @@ async def student_send_confidential_data(callback: CallbackQuery):
 
 @student_handler.callback_query(F.data.in_("student_send_schedule"))
 async def student_send_schedule(callback: CallbackQuery):
+    """
+    Обработчик запроса на отправку расписания занятий обучающегося.
+
+    Args:
+        callback (CallbackQuery): Объект обратного вызова.
+
+    Returns:
+        None
+    """
     scheduele = await sync_to_async(get_student_send_schedule)(callback.from_user.id)
     if scheduele:
         await callback.message.answer(text="\n".join(str(item) for item in scheduele))
@@ -117,6 +157,15 @@ async def student_send_schedule(callback: CallbackQuery):
 
 
 async def notifying_student(bot: Bot):
+    """
+    Асинхронная функция для уведомления обучающихся о предстоящих занятиях.
+
+    Args:
+        bot (Bot): Объект бота.
+
+    Returns:
+        None
+    """
     reminder = await sync_to_async(student_send_schedule_reminder)()
 
     for telegram_id, schedulers in reminder.items():
@@ -124,12 +173,25 @@ async def notifying_student(bot: Bot):
             for scheduler in schedulers:
                 await bot.send_message(chat_id=telegram_id, text=scheduler)
 
-
-scheduler.add_job(notifying_student, "interval", seconds=60, kwargs={"bot": bot})
+scheduler.add_job(
+    notifying_student, 
+    "interval",
+    seconds=60, 
+    kwargs={"bot": bot}
+)
 
 
 @student_handler.callback_query(F.data.in_("student_inline_keyboard_backward"))
 async def student_inline_keyboard_backward(callback: CallbackQuery):
+    """
+    Обработчик нажатия кнопки "Назад" в меню обучающегося.
+
+    Args:
+        callback (CallbackQuery): Объект колбэка.
+
+    Returns:
+        None
+    """
     await callback.message.edit_text(
         text="Панель обучающегося", reply_markup=inline_keyboard_panel
     )
@@ -138,5 +200,14 @@ async def student_inline_keyboard_backward(callback: CallbackQuery):
 
 @student_handler.callback_query(F.data.in_("student_panel_cancel"))
 async def student_panel_cancel(callback: CallbackQuery):
+    """
+    Обработчик отмены панели обучающегося.
+
+    Args:
+        callback (CallbackQuery): Объект колбэка.
+
+    Returns:
+        None
+    """
     await callback.message.delete()
     await callback.answer()

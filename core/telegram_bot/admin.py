@@ -5,7 +5,14 @@ from telegram_bot import models
 
 @admin.register(models.Student)
 class StudentAdmin(admin.ModelAdmin):
-    """Регистрация модуля для учеников"""
+    """
+    Регистрация модели учеников для административной панели Django.
+
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов учеников.
+        readonly_fields (tuple): Список полей, доступных только для чтения в административной панели.
+        list_display_links (list): Список полей, которые являются ссылками на страницы редактирования объектов.
+    """
 
     list_display = (
         "id",
@@ -21,15 +28,29 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(models.StudentGroup)
 class StudentGroupAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "teacher")
+    """
+    Регистрация модели группы учеников для административной панели Django.
 
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов группы учеников.
+        filter_horizontal (list): Список полей, для которых будет использоваться фильтр с возможностью множественного выбора.
+        list_display_links (list): Список полей, которые являются ссылками на страницы редактирования объектов.
+    """
+
+    list_display = ("id", "name", "teacher")
     filter_horizontal = ["students"]
     list_display_links = ["name"]
 
 
 @admin.register(models.StudentContentDetails)
 class StudentContentDetailsAdmin(admin.ModelAdmin):
-    """Регистрация модуля для персональных данных ученика"""
+    """
+    Регистрация модели персональных данных ученика для административной панели Django.
+
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов персональных данных ученика.
+        list_display_links (list): Список полей, которые являются ссылками на страницы редактирования объектов.
+    """
 
     list_display = (
         "id",
@@ -55,7 +76,14 @@ class StudentContentDetailsAdmin(admin.ModelAdmin):
 
 @admin.register(models.Teacher)
 class TeacherAdmin(admin.ModelAdmin):
-    """Регистрация модуля для преподавателей"""
+    """
+    Регистрация модели преподавателей для административной панели Django.
+
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов преподавателей.
+        readonly_fields (tuple): Список полей, доступных только для чтения в административной панели.
+        list_display_links (list): Список полей, которые являются ссылками на страницы редактирования объектов.
+    """
 
     list_display = (
         "id",
@@ -71,26 +99,38 @@ class TeacherAdmin(admin.ModelAdmin):
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    """Регистрация модуля для дисциплин"""
+    """
+    Регистрация модели дисциплин для административной панели Django.
 
-    list_display = (
-        "id",
-        "name",
-    )
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов дисциплин.
+        list_display_links (list): Список полей, которые являются ссылками на страницы редактирования объектов.
+    """
 
+    list_display = ("id", "name")
     list_display_links = ["name"]
 
 
 @admin.register(models.Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
-    """Регистрация модуля для учебных кабинетов"""
+    """
+    Регистрация модели учебных кабинетов для административной панели Django.
+
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов учебных кабинетов.
+    """
 
     list_display = ("id", "name")
 
 
 @admin.register(models.Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    """Регистрация модуля для занятий"""
+    """
+    Регистрация модели занятий для административной панели Django.
+
+    Attributes:
+        list_display (tuple): Список полей, отображаемых в списке объектов занятий.
+    """
 
     list_display = (
         "id",

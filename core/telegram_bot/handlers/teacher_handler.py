@@ -15,13 +15,29 @@ from telegram_bot.keyboards.teacher_keyboard import (
 from telegram_bot.loader import bot, scheduler
 from telegram_bot.states.teacher_message_state import teacher_message_state_router
 
+# Создание роутера для обработки сообщений преподавателей
 teacher_handler = Router()
+
+# Включение внутреннего роутера для обработки состояний отправки сообщений преподавателя
 teacher_handler.include_router(teacher_message_state_router)
+
+# Установка фильтра, разрешающего только аутентифицированным преподавателям обращаться к обработчикам
 teacher_handler.message(AuthenticationTeacherFilter())
 
 
 @teacher_handler.message(F.text == "/panel", AuthenticationTeacherFilter())
 async def cmd_panel_teacher(message: Message):
+    """
+    Обработчик команды "/panel" для преподавателей.
+
+    Удаляет сообщение с командой и отправляет сообщение с панелью преподавателя, используя клавиатуру inline_keyboard_panel.
+
+    Args:
+        message (Message): Входящее сообщение.
+
+    Returns:
+        None
+    """
     await message.delete()
     await message.answer(
         text="Панель преподавателя",
@@ -32,6 +48,17 @@ async def cmd_panel_teacher(message: Message):
 
 @teacher_handler.callback_query(F.data.in_("teacher_send_personal_data"))
 async def teacher_send_personal_data(callback: CallbackQuery):
+    """
+    Обработчик коллбэк-кнопки "teacher_send_personal_data" для преподавателей.
+
+    Извлекает персональные данные преподавателя из базы данных и отображает их в сообщении.
+
+    Args:
+        callback (CallbackQuery): CallbackQuery объект.
+
+    Returns:
+        None
+    """
     personal_data = await sync_to_async(get_teacher_send_personal_data)(
         callback.from_user.id
     )
@@ -61,9 +88,20 @@ async def teacher_send_personal_data(callback: CallbackQuery):
 
 @teacher_handler.callback_query(F.data.in_("teacher_send_schedule"))
 async def teacher_send_schedule(callback: CallbackQuery):
-    scheduele = await sync_to_async(get_teacher_send_schedule)(callback.from_user.id)
-    if scheduele:
-        await callback.message.answer(text="\n".join(str(item) for item in scheduele))
+    """
+    Обработчик коллбэк-кнопки "teacher_send_schedule" для преподавателей.
+
+    Отправляет преподавателю расписание занятий.
+
+    Args:
+        callback (CallbackQuery): CallbackQuery объект.
+
+    Returns:
+        None
+    """
+    schedule = await sync_to_async(get_teacher_send_schedule)(callback.from_user.id)
+    if schedule:
+        await callback.message.answer(text="\n".join(str(item) for item in schedule))
     else:
         await callback.message.answer(
             text="В данный момент нет запланированных занятий"
@@ -73,6 +111,15 @@ async def teacher_send_schedule(callback: CallbackQuery):
 
 
 async def notifying_teachers(bot: Bot):
+    """
+    Асинхронная функция для отправки напоминаний преподавателям о предстоящих занятиях.
+
+    Args:
+        bot (Bot): Объект бота.
+
+    Returns:
+        None
+    """
     reminder = await sync_to_async(teacher_send_schedule_reminder)()
 
     for telegram_id, schedulers in reminder.items():
@@ -80,12 +127,25 @@ async def notifying_teachers(bot: Bot):
             for scheduler in schedulers:
                 await bot.send_message(chat_id=telegram_id, text=scheduler)
 
-
-scheduler.add_job(notifying_teachers, "interval", seconds=60, kwargs={"bot": bot})
+scheduler.add_job(
+    notifying_teachers,
+    "interval",
+    seconds=60,
+    kwargs={"bot": bot}
+)
 
 
 @teacher_handler.callback_query(F.data.in_("teacher_send_message_for_group"))
 async def teacher_send_message_for_group(callback: CallbackQuery):
+    """
+    Обработчик коллбэк-кнопки "teacher_send_message_for_group" для отправки сообщений преподавателем всей группе.
+
+    Args:
+        callback (CallbackQuery): CallbackQuery объект.
+
+    Returns:
+        None
+    """
     keyboard = await builder_inline_keyboard_group(callback.from_user.id)
     await callback.message.edit_text(
         text="Выберите группу для отправки сообщения", reply_markup=keyboard
@@ -95,6 +155,15 @@ async def teacher_send_message_for_group(callback: CallbackQuery):
 
 @teacher_handler.callback_query(F.data.in_("teacher_inline_keyboard_backward"))
 async def teacher_inline_keyboard_backward(callback: CallbackQuery):
+    """
+    Обработчик коллбэк-кнопки "teacher_inline_keyboard_backward" для возврата к панели преподавателя.
+
+    Args:
+        callback (CallbackQuery): CallbackQuery объект.
+
+    Returns:
+        None
+    """
     await callback.message.edit_text(
         text="Панель преподавателя", reply_markup=inline_keyboard_panel
     )
@@ -103,5 +172,14 @@ async def teacher_inline_keyboard_backward(callback: CallbackQuery):
 
 @teacher_handler.callback_query(F.data.in_("teacher_panel_cancel"))
 async def teacher_panel_cancel(callback: CallbackQuery):
+    """
+    Обработчик коллбэк-кнопки "teacher_panel_cancel" для отмены панели преподавателя.
+
+    Args:
+        callback (CallbackQuery): CallbackQuery объект.
+
+    Returns:
+        None
+    """
     await callback.message.delete()
     await callback.answer()

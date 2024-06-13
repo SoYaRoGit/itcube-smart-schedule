@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+# Клавиатура меню преподавателя для подтверждения выбранной группы
 inline_keyboard_teacher_message_state_menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [

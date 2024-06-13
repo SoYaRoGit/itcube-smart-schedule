@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+# Клавиатура - меню для учеников
 inline_keyboard_panel = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -30,7 +31,7 @@ inline_keyboard_panel = InlineKeyboardMarkup(
     ]
 )
 
-
+# Клавиатура, которая позвращает в меню
 inline_keyboard_backward = InlineKeyboardMarkup(
     inline_keyboard=[
         [

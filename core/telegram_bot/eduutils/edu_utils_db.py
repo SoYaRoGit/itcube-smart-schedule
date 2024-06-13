@@ -16,7 +16,148 @@ TIME_BEFORE_STUDENT = settings.TIME_BEFORE_STUDENT
 TIME_BEFORE_TEACHER = settings.TIME_BEFORE_TEACHER
 
 
+def send_full_name(telegram_id: int) -> str:
+    """
+    Функция для получения полного имени пользователя по его telegram_id.
+
+    Args:
+        telegram_id (int): Идентификатор пользователя в Telegram.
+
+    Returns:
+        str: Полное имя пользователя (ФИО), если пользователь аутентифицирован, иначе пустая строка.
+    """
+    # Проверяем, существует ли студент с указанным telegram_id
+    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
+
+    # Если студент существует, проверяем его аутентификацию
+    if student_exists:
+        student = Student.objects.get(telegram_id=telegram_id)
+        if student.is_authentication:
+            return str(student.full_name)  # Если аутентифицирован, возвращаем ФИО
+
+    # Если студент не найден или не аутентифицирован, проверяем преподавателя
+    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
+    if teacher_exists:
+        teacher = Teacher.objects.get(telegram_id=telegram_id)
+        if teacher.is_authentication:
+            return str(teacher.full_name)  # Если аутентифицирован, возвращаем ФИО
+
+    return ""  # Если пользователь не аутентифицирован или не найден, возвращаем пустую строку
+
+
+def not_authentication(telegram_id: int) -> bool:
+    """
+    Функция для проверки, аутентифицирован ли пользователь по его telegram_id.
+
+    Args:
+        telegram_id (int): Идентификатор пользователя в Telegram.
+
+    Returns:
+        bool: True, если пользователь не аутентифицирован, иначе False.
+    """
+    # Проверяем, существует ли студент с указанным telegram_id
+    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
+
+    # Если студент существует, проверяем его аутентификацию
+    if student_exists:
+        student = Student.objects.get(telegram_id=telegram_id)
+        if student.is_authentication:
+            return False  # Если аутентифицирован, возвращаем False
+
+    # Если студент не найден или не аутентифицирован, проверяем преподавателя
+    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
+    if teacher_exists:
+        teacher = Teacher.objects.get(telegram_id=telegram_id)
+        if teacher.is_authentication:
+            return False  # Если аутентифицирован, возвращаем False
+
+    # Если ни студент, ни преподаватель не найдены или не аутентифицированы, возвращаем True
+    return True
+
+
+def authentication_update(telegram_id: int, state_data: dict) -> bool:
+    """
+    Проводит аутентификацию студента или преподавателя на основе предоставленных данных.
+
+    Args:
+        telegram_id (int): Идентификатор Telegram пользователя.
+        state_data (dict): Словарь данных, содержащий логин и пароль пользователя.
+
+    Returns:
+        bool: True, если пользователь успешно аутентифицирован, в противном случае False.
+    """
+    # Проверяем, существует ли студент с указанным логином, паролем
+    student = Student.objects.filter(
+        login=state_data["login"],
+        password=state_data["password"],
+        is_authentication=False,
+    ).exists()
+
+    # Если студент с такими данными существует, то проводим аутентификацию
+    if student:
+        Student.objects.filter(
+            login=state_data["login"], password=state_data["password"]
+        ).update(telegram_id=telegram_id, is_authentication=True)
+
+        return True
+
+    # Проверяем, существует ли преподаватель с указанным логином, паролем
+    teacher = Teacher.objects.filter(
+        login=state_data["login"],
+        password=state_data["password"],
+        is_authentication=False,
+    ).exists()
+
+    # Если преподаватель с такими данными существует, то проводим аутентификацию
+    if teacher:
+        Teacher.objects.filter(
+            login=state_data["login"], password=state_data["password"]
+        ).update(telegram_id=telegram_id, is_authentication=True)
+
+        return True
+
+    # В случае, если не найдены данные, то возвращаем False
+    return False
+
+
+def authentication_student(telegram_id: int) -> bool:
+    """
+    Проверяет аутентификацию студента по Telegram ID.
+
+    Args:
+        telegram_id (int): Идентификатор Telegram пользователя.
+
+    Returns:
+        bool: True, если студент аутентифицирован, иначе False.
+    """
+    # Проверяем, существует ли студент с указанным telegram_id
+    student_exists = Student.objects.filter(telegram_id=telegram_id).exists()
+
+    # Если студент существует, проверяем его аутентификацию
+    if student_exists:
+        student = Student.objects.get(telegram_id=telegram_id)
+        if student.is_authentication:
+            return True  # Если аутентифицирован, возвращаем True
+
+    return False
+
+
 def __student_to_dict_personal_data(student):
+    """
+    Преобразует объект студента в словарь с его персональными данными.
+
+    Args:
+        student: Объект студента.
+
+    Returns:
+        dict: Словарь с персональными данными студента.
+            - id: Уникальный идентификатор студента.
+            - login: Логин студента.
+            - password: Пароль студента.
+            - full_name: Полное имя студента.
+            - telegram_id: Идентификатор Telegram студента.
+            - is_authentication: Статус аутентификации студента.
+    """
     return {
         "id": student.id,
         "login": student.login,
@@ -28,6 +169,16 @@ def __student_to_dict_personal_data(student):
 
 
 def get_student_send_personal_data(telegram_id: int) -> dict:
+    """
+    Получает персональные данные студента по его Telegram ID.
+
+    Args:
+        telegram_id (int): Идентификатор Telegram студента.
+
+    Returns:
+        dict or None: Словарь с персональными данными студента, если студент найден,
+            в противном случае возвращает None.
+    """
     try:
         # Получить ученика по его Telegram ID
         student = Student.objects.get(telegram_id=telegram_id)
@@ -40,6 +191,15 @@ def get_student_send_personal_data(telegram_id: int) -> dict:
 
 
 def __student_duct_confidential_data(student: Student) -> dict:
+    """
+    Преобразует объект студента в словарь с конфиденциальными данными.
+
+    Args:
+        student (Student): Объект студента.
+
+    Returns:
+        dict: Словарь с конфиденциальными данными студента.
+    """
     return {
         "parent_full_name": student.parent_full_name,
         "parent_residential_adress": student.parent_residential_adress,
@@ -59,6 +219,15 @@ def __student_duct_confidential_data(student: Student) -> dict:
 
 
 def get_student_confidential_data(telegram_id: int) -> dict:
+    """
+    Получает конфиденциальные данные студента по его Telegram ID.
+
+    Args:
+        telegram_id (int): ID Telegram.
+
+    Returns:
+        dict: Словарь с конфиденциальными данными студента.
+    """
     try:
         student = StudentContentDetails.objects.get(student__telegram_id=telegram_id)
         student_data = __student_duct_confidential_data(student)
@@ -67,7 +236,17 @@ def get_student_confidential_data(telegram_id: int) -> dict:
         return None
 
 
-def get_student_send_schedule(telegram_id: int):
+
+def get_student_send_schedule(telegram_id: int) -> list[str]:
+    """
+    Получает расписание занятий для студента по его Telegram ID.
+
+    Args:
+        telegram_id (int): ID Telegram.
+
+    Returns:
+        list[str]: Список строковых представлений расписания занятий.
+    """
     student = Student.objects.get(telegram_id=telegram_id)
     now = datetime.now()  # Получаем текущую дату и время
 
@@ -88,11 +267,20 @@ def get_student_send_schedule(telegram_id: int):
     return schedule_strings
 
 
-def get_teacher_send_schedule(telegram_id: int):
+def get_teacher_send_schedule(telegram_id: int) -> list[str]:
+    """
+    Получает расписание занятий для преподавателя по его Telegram ID.
+
+    Args:
+        telegram_id (int): ID Telegram преподавателя.
+
+    Returns:
+        list[str]: Список строковых представлений расписания занятий.
+    """
     teacher = Teacher.objects.get(telegram_id=telegram_id)
     now = datetime.now()  # Получаем текущую дату и время
 
-    # Фильтруем расписание по студенту и дате занятия, а также времени начала занятия
+    # Фильтруем расписание по преподавателю и дате занятия, а также времени начала занятия
     schedules = (
         Schedule.objects.filter(
             Q(date=now.date(), end_time__gte=now.time())
@@ -109,7 +297,13 @@ def get_teacher_send_schedule(telegram_id: int):
     return schedule_strings
 
 
-def student_send_schedule_reminder():
+def student_send_schedule_reminder() -> dict[int, list[str]]:
+    """
+    Отправляет напоминания об учебном расписании для студентов.
+
+    Returns:
+        dict[int, list[str]]: Словарь, где ключ - ID Telegram студента, а значение - список строковых представлений расписания.
+    """
     time_now = datetime.now().replace(
         second=0, microsecond=0
     )  # Получаем текущую дату и время
@@ -157,8 +351,14 @@ def student_send_schedule_reminder():
     return students_schedule
 
 
-def teacher_send_schedule_reminder():
-    tine_now = datetime.now().replace(
+def teacher_send_schedule_reminder() -> dict[int, list[str]]:
+    """
+    Отправляет напоминания об учебном расписании для преподавателей.
+
+    Returns:
+        dict[int, list[str]]: Словарь, где ключ - ID Telegram преподавателя, а значение - список строковых представлений расписания.
+    """
+    time_now = datetime.now().replace(
         second=0, microsecond=0
     )  # Получаем текущую дату и время
 
@@ -169,9 +369,9 @@ def teacher_send_schedule_reminder():
     for teacher in teachers:
         schedules = (
             Schedule.objects.filter(
-                date=tine_now.date(),  # Занятия только на сегодняшний день
+                date=time_now.date(),  # Занятия только на сегодняшний день
                 group__teacher=teacher,
-                end_time__gte=tine_now.time(),  # Занятия до момента их окончания
+                end_time__gte=time_now.time(),  # Занятия до момента их окончания
             )
             .order_by("date", "start_time")
             .all()
@@ -183,21 +383,19 @@ def teacher_send_schedule_reminder():
             start_datetime = timezone.datetime.combine(
                 schedule.date, schedule.start_time
             )
-            end_datetime = timezone.datetime.combine(
-                schedule.date, schedule.end_time
-            )
+            end_datetime = timezone.datetime.combine(schedule.date, schedule.end_time)
 
-            if tine_now == start_datetime - timedelta(minutes=TIME_BEFORE_TEACHER):
+            if time_now == start_datetime - timedelta(minutes=TIME_BEFORE_TEACHER):
                 schedule_strings.append(
                     f"[Оповещение]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}"
                 )
 
-            if tine_now == start_datetime:
+            if time_now == start_datetime:
                 schedule_strings.append(
                     f"[Начало занятия]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}"
                 )
 
-            if tine_now == end_datetime:
+            if time_now == end_datetime:
                 schedule_strings.append(
                     f"[Оповещение о завершении]\nДата занятия: {schedule.date} | {schedule.start_time} - {schedule.end_time}\nДисциплина: {schedule.subject}\nКабинет: {schedule.classroom}"
                 )
@@ -207,7 +405,16 @@ def teacher_send_schedule_reminder():
     return teachers_schedule
 
 
-def __teacher_to_dict(teacher):
+def __teacher_to_dict(teacher: Teacher) -> dict:
+    """
+    Преобразует объект преподавателя в словарь.
+
+    Args:
+        teacher (Teacher): Объект преподавателя.
+
+    Returns:
+        dict: Словарь с данными преподавателя.
+    """
     return {
         "id": teacher.id,
         "login": teacher.login,
@@ -218,19 +425,34 @@ def __teacher_to_dict(teacher):
     }
 
 
-def get_teacher_send_personal_data(telegram_id):
+def get_teacher_send_personal_data(telegram_id: int) -> dict:
+    """
+    Получает персональные данные преподавателя по его Telegram ID.
+
+    Args:
+        telegram_id (int): ID Telegram.
+
+    Returns:
+        dict: Словарь с персональными данными преподавателя, если найден, иначе None.
+    """
     try:
-        # Получить ученика по его Telegram ID
         teacher = Teacher.objects.get(telegram_id=telegram_id)
-        # Преобразовать объект студента в словарь
         teacher_data = __teacher_to_dict(teacher)
         return teacher_data
-    except Student.DoesNotExist:
-        # Обработка случая, когда студент с указанным telegram_id не найден
+    except Teacher.DoesNotExist:
         return None
 
 
 def get_students_group_telegram_id(name_group: str) -> list:
+    """
+    Получает список Telegram ID студентов определенной группы.
+
+    Args:
+        name_group (str): Название группы.
+
+    Returns:
+        list: Список Telegram ID студентов в указанной группе, если найдены, иначе None.
+    """
     try:
         students_telegram_id = []
         students = Student.objects.filter(
@@ -246,6 +468,15 @@ def get_students_group_telegram_id(name_group: str) -> list:
 
 
 def get_students_group_full_name(name_group: str) -> list[str]:
+    """
+    Получает список полных имен студентов определенной группы.
+
+    Args:
+        name_group (str): Название группы.
+
+    Returns:
+        list[str] or None: Список полных имен студентов в указанной группе, если найдены, иначе None.
+    """
     try:
         students_name = []
         students = Student.objects.filter(
@@ -261,6 +492,33 @@ def get_students_group_full_name(name_group: str) -> list[str]:
 
 
 def get_groups_teacher(telegram_id_teacher: int) -> list[tuple]:
+    """
+    Получает список групп, преподаваемых определенным преподавателем.
+
+    Args:
+        telegram_id_teacher (int): Telegram ID преподавателя.
+
+    Returns:
+        list[tuple]: Список кортежей (название группы, строковое представление группы).
+    """
     groups = StudentGroup.objects.filter(teacher__telegram_id=telegram_id_teacher)
     teacher_groups = [(group.name, str(group)) for group in groups]
     return teacher_groups
+
+
+def authentication_teacher(telegram_id: int) -> bool:
+    """
+    Проверяет аутентификацию преподавателя по его Telegram ID.
+
+    Args:
+        telegram_id (int): Идентификатор Telegram пользователя.
+
+    Returns:
+        bool: True, если преподаватель аутентифицирован, иначе False.
+    """
+    teacher_exists = Teacher.objects.filter(telegram_id=telegram_id).exists()
+    if teacher_exists:
+        teacher = Teacher.objects.get(telegram_id=telegram_id)
+        if teacher.is_authentication:
+            return True
+    return False
